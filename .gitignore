@@ -1,0 +1,4 @@
+database-data/
+__pycache__/
+*.pyc[cod]
+

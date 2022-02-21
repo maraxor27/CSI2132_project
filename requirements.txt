@@ -1,0 +1,5 @@
+flask
+flask_restful
+flask_restx
+psycopg2
+flask-login
