@@ -1,6 +1,6 @@
 from flask import Flask
 
-import psycopg2
+from .database import Database
 import os
 
 params = {
@@ -11,21 +11,13 @@ params = {
 	'port': 5432
 }
 
+db = Database(host="postgres", database="main", user="user", password="password")
+
 def create_flask_app():	
 	app = Flask(__name__, static_url_path="/static")
 	app.env = "development"
 	app.app_context().push()
-	
-	conn = psycopg2.connect(host="postgres", database="main", user="user", password="password")
-	cur = conn.cursor()
 
-	print("PostgreSQL database version:")
-	cur.execute("SELECT version()")
-
-	db_version = cur.fetchone()
-	print(db_version, flush=True)
-
-	cur.close()
 	return app
 
 
