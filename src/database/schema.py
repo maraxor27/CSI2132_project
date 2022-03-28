@@ -52,6 +52,7 @@ employee = """CREATE TABLE employee (
 	employee_type VARCHAR(15) NOT NULL,
 	salary NUMERIC(9,2),
 	branch_id INTEGER,
+	is_manager boolean DEFAULT FALSE,
 	PRIMARY KEY (SSN),
 	FOREIGN KEY (SSN) REFERENCES person(SSN) 
 		ON UPDATE CASCADE
@@ -73,11 +74,7 @@ patient_record = """CREATE TABLE patient_record (
 branch = """CREATE TABLE branch (
 	branch_id INTEGER NOT NULL,
 	city VARCHAR(50) NOT NULL,
-	managerSSN INTEGER,
-	PRIMARY KEY (branch_id),
-	FOREIGN KEY (managerSSN) REFERENCES employee(SSN) 
-		ON UPDATE CASCADE
-		ON DELETE SET NULL
+	PRIMARY KEY (branch_id)
 );"""
 
 room = """CREATE TABLE room (
@@ -126,10 +123,7 @@ appointment = """CREATE TABLE appointment(
 	FOREIGN KEY (patientSSN) REFERENCES patient(SSN) 
 		ON UPDATE CASCADE 
 		ON DELETE CASCADE,
-	FOREIGN KEY (employeeSSN) REFERENCES employe(SSN) 
-		ON UPDATE CASCADE 
-		ON DELETE CASCADE,
-	FOREIGN KEY (invoice_id) REFERENCES invoice(invoice_id) 
+	FOREIGN KEY (employeeSSN) REFERENCES employee(SSN) 
 		ON UPDATE CASCADE 
 		ON DELETE CASCADE,
 	FOREIGN KEY (room_id) REFERENCES room(room_id) 
@@ -182,16 +176,9 @@ fee = """CREATE TABLE fee (
 	fee_id INTEGER NOT NULL,
 	amount NUMERIC(6, 2) NOT NULL,
 	invoice_id INTEGER NOT NULL,
-	procedure_id INTEGER,
-	treatment_id INTEGER,
 	PRIMARY KEY (fee_id),
-	FOREIGN KEY (procedure_id) REFERENCES procedure(procedure_id)
+	FOREIGN KEY (invoice_id) REFERENCES invoice(invoice_id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE,
-	FOREIGN KEY (treatment_id) REFERENCES treatment(treatment_id)
-		ON UPDATE CASCADE
-		ON DELETE CASCADE,
-	check(procedure_id is not null or treatment_id is not null)
 );"""
 
 invoice = """CREATE TABLE invoice (
@@ -199,12 +186,8 @@ invoice = """CREATE TABLE invoice (
 	issued_date DATE NOT NULL,
 	patient_charge NUMERIC(8, 2) NOT NULL,
 	insurance_charge NUMERIC(8, 2) NOT NULL,
-	patient_billing_id INTEGER NOT NULL,
 	appointment_id INTEGER NOT NULL,
 	PRIMARY KEY (invoice_id),
-	FOREIGN KEY (patient_billing_id) REFERENCES patient_billing(patient_billing_id)
-		ON UPDATE CASCADE
-		ON DELETE CASCADE,
 	FOREIGN KEY (appointment_id) REFERENCES appointment(appointment_id)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
@@ -217,12 +200,8 @@ patient_billing = """CREATE TABLE patient_billing (
 	total_amount NUMERIC(9, 2) GENERATED ALWAYS AS (patient_portion + insurance_portion) STORED,
 	payment_type VARCHAR(20) NOT NULL,
 	invoice_id INTEGER NOT NULL,
-	insurance_claim_id INTEGER NOT NULL,
-	PRIMARY KEY (patient_biling_id),
+	PRIMARY KEY (patient_billing_id),
 	FOREIGN KEY (invoice_id) REFERENCES invoice(invoice_id)
-		ON UPDATE CASCADE
-		ON DELETE CASCADE,
-	FOREIGN KEY (insurance_claim_id) REFERENCES insurance_claim(insurance_claim_id)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );"""
