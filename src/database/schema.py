@@ -9,38 +9,42 @@ person = """CREATE TABLE person (
 	province VARCHAR(50) NOT NULL,
 	gender VARCHAR(1) NOT NULL,
 	email VARCHAR(100) NOT NULL,
-	PRIMARY KEY (SSN)
+	PRIMARY KEY (SSN),
+	check(email ~* '^[\w-.]+@([\w-]+.)+[\w-]{2,4}$'),
+	check(house_number > 0)
 );"""
 
 
 guardian = """CREATE TABLE guardian (
 	SSN INTEGER NOT NULL,
 	date_of_birth DATE NOT NULL,
-	age INTEGER GENERATED ALWAYS AS (extract(year FROM CURRENT_DATE) - extract(year FROM date_of_birth)) STORED,
+	age INTEGER,
 	PRIMARY KEY (SSN),
 	FOREIGN KEY (SSN) REFERENCES person(SSN) 
 		ON UPDATE CASCADE 
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
+	check(age >= 18)
 );"""
 
-# What do we do on deletion of the guardian?
+# What do we do on deletion of the guardian - set null
 patient = """CREATE TABLE patient (
 	SSN INTEGER NOT NULL,
 	insurance VARCHAR(50),
 	date_of_birth DATE NOT NULL,
-	age INTEGER GENERATED ALWAYS AS (extract(year FROM CURRENT_DATE) - extract(year FROM date_of_birth)) STORED,
+	age INTEGER,
+	guardianSSN INTEGER NOT NULL,
 	PRIMARY KEY (SSN),
 	FOREIGN KEY (SSN) REFERENCES person(SSN) 
 		ON UPDATE CASCADE 
 		ON DELETE CASCADE,
 	FOREIGN KEY (guardianSSN) REFERENCES guardian 
 		ON UPDATE CASCADE
+		ON DELETE SET NULL,
+	check(age >= 18 or guardianSSN is not Null)
 );"""
 
 # We assume the salary won't exced $ 9 999 999.99 
-
-# What do we do on deletion of the branch? Remove employee?
-
+# What do we do on deletion of the branch - set to null
 # branch_id can be null because we need to be able to create an employee 
 # before creating the branch since a branch requires a manager.
 employee = """CREATE TABLE employee (
@@ -50,9 +54,11 @@ employee = """CREATE TABLE employee (
 	branch_id INTEGER,
 	PRIMARY KEY (SSN),
 	FOREIGN KEY (SSN) REFERENCES person(SSN) 
-		ON UPDATE CASCADE,
+		ON UPDATE CASCADE
+		ON DELETE CASCADE,
 	FOREIGN KEY (branch_id) REFERENCES branch 
 		ON UPDATE CASCADE
+		ON DELETE SET NULL
 );"""
 
 patient_record = """CREATE TABLE patient_record (
@@ -60,14 +66,18 @@ patient_record = """CREATE TABLE patient_record (
 	PRIMARY KEY (patientSSN),
 	FOREIGN KEY (patientSSN) REFERENCES patient(SSN)
 		ON UPDATE CASCADE 
-		ON DELETE CASCADE,
+		ON DELETE CASCADE
 );""" 
 
+# manager ssn can be null - if we create branch -> we can add the manager later
 branch = """CREATE TABLE branch (
 	branch_id INTEGER NOT NULL,
 	city VARCHAR(50) NOT NULL,
-	managerSSN NOT NULL,
-	PRIMARY KEY (branch_id)
+	managerSSN INTEGER,
+	PRIMARY KEY (branch_id),
+	FOREIGN KEY (managerSSN) REFERENCES employee(SSN) 
+		ON UPDATE CASCADE
+		ON DELETE SET NULL
 );"""
 
 room = """CREATE TABLE room (
@@ -77,11 +87,11 @@ room = """CREATE TABLE room (
 	PRIMARY KEY (room_id),
 	FOREIGN KEY (branch_id) REFERENCES branch(branch_id) 
 		ON UPDATE CASCADE 
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
+	check(room_num >= 0)
 );"""
 
-# professionalism, communication,  are metrics that range from 0 to 5 
-# A function may be needed
+# professionalism, communication, ... are metrics that range from 0 to 5 
 review = """CREATE TABLE review (
 	patientSSN INTEGER NOT NULL,
 	branch_id INTEGER NOT NULL,
@@ -93,12 +103,14 @@ review = """CREATE TABLE review (
 	PRIMARY KEY (patientSSN, branch_id),
 	FOREIGN KEY (patientSSN) REFERENCES patient(SSN) 
 		ON UPDATE CASCADE 
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
+	check(professionalism between 0 and 5),
+	check(cleanliness between 0 and 5),
+	check(value between 0 and 5),
+	check(communication between 0 and 5)
 );"""
 
-# Check that end_time is after start_time?
-# Status enum (???). Default value for the status?
-# Is type necessary since the information is in teh procedure and the treatment?
+# we check that end_time is after start_time
 appointment = """CREATE TABLE appointment(
 	appointment_id INTEGER NOT NULL,
 	patientSSN INTEGER NOT NULL,
@@ -122,18 +134,19 @@ appointment = """CREATE TABLE appointment(
 		ON DELETE CASCADE,
 	FOREIGN KEY (room_id) REFERENCES room(room_id) 
 		ON UPDATE CASCADE 
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
+	check(status in ('CANCELLED', 'NO SHOW', 'COMPLETED', 'SCHEDULED', 'UNSCHEDULED')),
+	check(type in ('TREATMENT', 'PROCEDURE')),
+	check(end_time > start_time)
 );"""
 
-# procedure_date currently removed date already in appointment? otherwise foreign key?
 # TEXT type is for sequence of character of unknown length. No maximum char count
-# tooth_involved data type?
 appointment_procedure = """CREATE TABLE appointment_procedure (
 	procedure_id INTEGER NOT NULL,
 	procedure_code INTEGER NOT NULL,
 	procedure_type VARCHAR(20) NOT NULL,
 	description TEXT NOT NULL,
-	tooth_involved VARCHAR(10) NOT NULL,
+	tooth_involved VARCHAR(20) NOT NULL,
 	medication VARCHAR(100) NOT NULL,
 	appointment_id INTEGER NOT NULL,
 	fee_id INTEGER NOT NULL,
@@ -143,11 +156,10 @@ appointment_procedure = """CREATE TABLE appointment_procedure (
 		ON DELETE CASCADE,
 	FOREIGN KEY (fee_id) REFERENCES fee(fee_id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE,
+		ON DELETE CASCADE
 );"""
 
-# Did not put patientSSN since that info is already in the appointment
-# check symptoms type 
+# Did not put patientSSN since that info is already in the appointment 
 treatment = """CREATE TABLE treatment (
 	treatment_id INTEGER NOT NULL,
 	treatment_type VARCHAR(20) NOT NULL,
@@ -162,13 +174,13 @@ treatment = """CREATE TABLE treatment (
 		ON DELETE CASCADE,
 	FOREIGN KEY (fee_id) REFERENCES fee(fee_id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE,
+		ON DELETE CASCADE
 );"""
 
 # We assume the amount can't be higher than 9 999.99
 fee = """CREATE TABLE fee (
 	fee_id INTEGER NOT NULL,
-	amount NUMERIC(6, 2),
+	amount NUMERIC(6, 2) NOT NULL,
 	invoice_id INTEGER NOT NULL,
 	procedure_id INTEGER,
 	treatment_id INTEGER,
@@ -179,6 +191,7 @@ fee = """CREATE TABLE fee (
 	FOREIGN KEY (treatment_id) REFERENCES treatment(treatment_id)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
+	check(procedure_id is not null or treatment_id is not null)
 );"""
 
 invoice = """CREATE TABLE invoice (
@@ -194,7 +207,7 @@ invoice = """CREATE TABLE invoice (
 		ON DELETE CASCADE,
 	FOREIGN KEY (appointment_id) REFERENCES appointment(appointment_id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE,
+		ON DELETE CASCADE
 );"""
 
 patient_billing = """CREATE TABLE patient_billing (
@@ -211,7 +224,7 @@ patient_billing = """CREATE TABLE patient_billing (
 		ON DELETE CASCADE,
 	FOREIGN KEY (insurance_claim_id) REFERENCES insurance_claim(insurance_claim_id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE,
+		ON DELETE CASCADE
 );"""
 
 insurance_claim = """CREATE TABLE incusrance_claim (
@@ -221,5 +234,5 @@ insurance_claim = """CREATE TABLE incusrance_claim (
 	patient_billing_id INTEGER NOT NULL,
 	FOREIGN KEY (patient_billing_id) REFERENCES patient_billing(patient_billing_id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE,
+		ON DELETE CASCADE
 );"""
