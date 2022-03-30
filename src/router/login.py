@@ -12,10 +12,10 @@ def userTypes_required_decorator_factory(types):
 		return inner
 	return decorator
 
-@loginBlueprint.route('/login', methods=['POST'])
+@loginBlueprint.route('/login', methods=['GET'])
 def login():
 	# login_user()
-	return 
+	return {'name': 'Michael'}
 
 @loginBlueprint.route('/logout')
 @login_required
