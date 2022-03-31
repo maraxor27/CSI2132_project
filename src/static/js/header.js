@@ -40,7 +40,7 @@ Vue.component('myheader', {
 				this.logged_in = true
 				this.email = ""
 				this.password = ""
-				console.log(this.user._links.self)
+				console.log(this.user)
 				this.$emit('user-update', this.user)
 		},
 		logout() {
@@ -65,8 +65,22 @@ Vue.component('myheader', {
 					<button type="button" class="btn btn-dark" style="margin: auto; font-size: larger;">DCMS</button>
 				</a>
 			</b-navbar-brand>
-		
+			
 			<b-navbar-nav class="ml">
+				<b-navbar-nav>
+					<a href="/patient">
+						<button type="button" class="btn btn-dark" style="margin: auto;">Patient</button>
+					</a>
+
+					<a href="/dentist">
+						<button type="button" class="btn btn-dark" style="margin: auto;">Dentist</button>
+					</a>
+
+					<a href="/receptionist">
+						<button type="button" class="btn btn-dark" style="margin: auto;">Receptionist</button>
+					</a>
+				</b-navbar-nav>
+
 				<b-nav-item-dropdown text="User" v-if="!logged_in" right>
 					<li class="no-wrap" style="min-width: 17rem; margin: 4px;">
 						<div class="input-group input-group-sm mb-3">
@@ -103,21 +117,7 @@ Vue.component('myheader', {
 					</li>
 				</b-nav-item-dropdown>
 
-				<b-nav-item-dropdown v-bind:text="user.firstname" v-else right>
-					<b-navbar-nav>
-						<a href="/patient">
-							<button type="button" class="btn btn-dark" style="margin: auto;">Patient</button>
-						</a>
-
-						<a href="/dentist">
-							<button type="button" class="btn btn-dark" style="margin: auto;">Dentist</button>
-						</a>
-
-						<a href="/receptionist">
-							<button type="button" class="btn btn-dark" style="margin: auto;">Receptionist</button>
-						</a>
-					</b-navbar-nav>
-
+				<b-nav-item-dropdown v-bind:text="user.email" v-else right>
 					<b-dropdown-item href="/account">Account</b-dropdown-item>
 
 					<li class="no-wrap" style="min-width: 10rem; margin: 4px;">
@@ -125,9 +125,6 @@ Vue.component('myheader', {
 							v-on:click="logout()">
 							Logout
 						</button>
-						<a href="/accountSettings" >
-							<button type="button" class="btn btn-dark" style="margin: auto;">Account Setting</button>
-						</a>
 					</li>
 				</b-nav-item-dropdown>
 			</b-navbar-nav>

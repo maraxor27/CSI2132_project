@@ -9,8 +9,9 @@ person = """CREATE TABLE person (
 	province VARCHAR(50) NOT NULL,
 	gender VARCHAR(1) NOT NULL,
 	email VARCHAR(100) NOT NULL,
+	password VARCHAR(50) NOT NULL,
 	PRIMARY KEY (SSN),
-	check(email ~* '^[\w-.]+@([\w-]+.)+[\w-]{2,4}$'),
+	check(email ~* '^[\w.-]+@([\w-]+.)+[\w-]{2,4}$'),
 	check(house_number > 0)
 );"""
 
@@ -206,7 +207,7 @@ patient_billing = """CREATE TABLE patient_billing (
 		ON DELETE CASCADE
 );"""
 
-insurance_claim = """CREATE TABLE incusrance_claim (
+insurance_claim = """CREATE TABLE insurance_claim (
 	insurance_claim_id INTEGER NOT NULL,
 	amount NUMERIC(8, 2),
 	PRIMARY KEY (insurance_claim_id),

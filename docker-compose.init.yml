@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  web_server:
+    #container_name: web_server
+    build: . 
+    ports:
+      - 5000:5000
+    volumes: 
+      - ./src:/myapp
+    #entrypoint: flask run -h 0.0.0.0
+    entrypoint: python3 init_db.py
+    environment:
+      - FLASK_APP=/myapp
+      - FLASK_ENV=development
+    depends_on:
+      - "postgres"
+      
+  postgres:
+    #container_name: postgres
+    image: postgres
+    ports:
+      - 50000:5432
+    env_file:
+      - database.env
+    volumes:
+      - ./database-data:/var/lib/postgresql/data/
