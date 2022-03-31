@@ -33,7 +33,7 @@ patient = """CREATE TABLE patient (
 	insurance VARCHAR(50),
 	date_of_birth DATE NOT NULL,
 	age INTEGER,
-	guardianSSN INTEGER NOT NULL,
+	guardianSSN INTEGER,
 	PRIMARY KEY (SSN),
 	FOREIGN KEY (SSN) REFERENCES person(SSN) 
 		ON UPDATE CASCADE 

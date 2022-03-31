@@ -68,15 +68,15 @@ Vue.component('myheader', {
 			
 			<b-navbar-nav class="ml">
 				<b-navbar-nav>
-					<a href="/patient">
+					<a href="/patient" v-if="user.patient!=null">
 						<button type="button" class="btn btn-dark" style="margin: auto;">Patient</button>
 					</a>
 
-					<a href="/dentist">
+					<a href="/dentist" v-if="user.employee_type == 'dentist'">
 						<button type="button" class="btn btn-dark" style="margin: auto;">Dentist</button>
 					</a>
 
-					<a href="/receptionist">
+					<a href="/receptionist" v-if="user.employee_type == 'receptionist'">
 						<button type="button" class="btn btn-dark" style="margin: auto;">Receptionist</button>
 					</a>
 				</b-navbar-nav>

@@ -26,8 +26,12 @@ def create_flask_app():
 
 	@loginManager.user_loader
 	def load_user(SSN):
-		result = db.execute(f"""SELECT SSN, email, password FROM person 
-		WHERE SSN={SSN}""")
+		query = f"""
+SELECT person.ssn, person.email, person.password, employee.employee_type, patient.ssn
+FROM person LEFT JOIN employee ON person.ssn=employee.ssn LEFT JOIN patient ON person.ssn=patient.ssn
+WHERE person.ssn='{SSN}';
+"""
+		result = db.execute(query)
 		if len(result) == 1:
 			return User(*result[0])
 		return None

@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restx import Api
 
-from .login import loginBlueprint 
+from .login import loginBlueprint, User
 from .patient import patientNameSpace
 
 

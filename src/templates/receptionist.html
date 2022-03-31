@@ -29,9 +29,11 @@
   <body>
     <script src="//cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/static/js/header.js"></script>
+    <script src="/static/js/receptionist.js"></script>
 
     <div id="app">
       <myheader @user-update="updateUser"></myheader>
+      <receptionist :user="user"></receptionist>
     </div>
     <script>
       var app = new Vue({

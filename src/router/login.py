@@ -23,10 +23,13 @@ def login():
 	if not request.json.get('email') or not request.json.get('password'):
 		abort(400, "email or password is missing in the json")
 
-	query = f"SELECT SSN, email, password FROM person \
-WHERE email='{request.json.get('email')}' and password='{request.json.get('password')}';"
+	query = f"""
+SELECT person.ssn, person.email, person.password, employee.employee_type, patient.ssn
+FROM person LEFT JOIN employee ON person.ssn=employee.ssn LEFT JOIN patient ON person.ssn=patient.ssn
+WHERE person.email='{request.json.get('email')}' AND person.password='{request.json.get('password')}';
+"""
+
 	result = db.execute(query)
-	
 	
 	if len(result) != 1:
 		abort(400, "Invalide email password") 
@@ -43,10 +46,12 @@ def logout():
 	return 'ok'
 
 class User:
-	def __init__(self, SSN, email, password):
+	def __init__(self, SSN, email, password, employee_type, patient):
 		self.SSN = SSN
 		self.email = email
 		self.password = password
+		self.employee_type = employee_type
+		self.patient = patient
 
 	def is_authenticated(self):
 		return True
