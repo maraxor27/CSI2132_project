@@ -84,7 +84,7 @@ Vue.component('myheader', {
 				<b-nav-item-dropdown text="User" v-if="!logged_in" right>
 					<li class="no-wrap" style="min-width: 17rem; margin: 4px;">
 						<div class="input-group input-group-sm mb-3">
-							<div class="input-group-prepend" style="width:6rem;">
+							<div class="input-group-prepend" style="width:5rem; display:block; text-align:left;">
 								<span class="input-group-text" id="inputGroup-sizing-sm">Email</span>
 							</div>
 						<input type="text" class="form-control" 
@@ -95,7 +95,7 @@ Vue.component('myheader', {
 			
 					<li class="no-wrap" style="min-width: 17rem; margin: 4px;">
 						<div class="input-group input-group-sm mb-3">
-							<div class="input-group-prepend" style="width:6rem;">
+							<div class="input-group-prepend" style="width:5rem; display:block; text-align:left;">
 								<span class="input-group-text" id="inputGroup-sizing-sm">Password</span>
 							</div>
 							<input type="password" class="form-control" 
