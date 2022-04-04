@@ -1,7 +1,7 @@
 Vue.component("receptionist", {
 	props: ["user"],
 	data: function() { return {
-		
+		tab: 'patient',
 	}},
 	methods: {
 
@@ -9,11 +9,169 @@ Vue.component("receptionist", {
 	template:
 	`
 	<div>
-		<h2>Receptionist</h2>
-		<br>
-		<manage-appointment></manage-appointment>
-		<br>
-		<patient-form></patient-form>
+		<div style="margin: 5rem 5rem 0 5rem">
+			<b-nav tabs fill>
+				<b-nav-item @click="tab='patient'"
+				:active="tab=='patient'">
+				Patients
+			</b-nav-item>
+			<b-nav-item @click="tab='appointment'"
+				:active="tab=='appointment'">
+				Appointments
+			</b-nav-item>
+			</b-nav>
+		</div>
+		<manage-patient v-if="tab=='patient'"></manage-patient>
+		<manage-appointment v-if="tab=='appointment'"></manage-appointment>
+	</div>
+	`
+})
+
+Vue.component("manage-patient", {
+	data: function() { return {
+		patients: [
+			{
+				ssn: "123456789",
+				first_name: "first",
+				middle_name: "middle",
+				last_name: "last",
+				house_number: 100,
+				street_name: "something rode",
+				city: "Gatineau",
+				province: "Quebec",
+				gender: "m",
+				email: "simon.laureti@gmail.com",
+				insurance: "####",
+				date_of_birth: "2000-02-20",
+				// variables below must be added on the front end
+				editing: false,
+				temp: {},
+			},
+		],
+		showOverlay: false,
+		provinces: [{text: 'Provinces ...', value: null}, 
+			'Alberta', 
+			'British Colombia', 
+			'Manitoba', 
+			'New Brunswick', 
+			'Newfoundland and Labrador', 
+			'Nova Scotia', 
+			'Ontario', 
+			'Prince Edward Island', 
+			'Quebec', 
+			'Saskatchewan'
+		],
+	}},
+	methods: {
+		edit(index) {
+			this.patients[index].editing = true
+			this.patients[index].temp.ssn = this.patients[index].ssn
+			this.patients[index].temp.first_name = this.patients[index].first_name
+			this.patients[index].temp.middle_name = this.patients[index].middle_name
+			this.patients[index].temp.last_name = this.patients[index].last_name
+			this.patients[index].temp.house_number = this.patients[index].house_number
+			this.patients[index].temp.street_name = this.patients[index].street_name
+			this.patients[index].temp.city = this.patients[index].city
+			this.patients[index].temp.province = this.patients[index].province
+			this.patients[index].temp.gender = this.patients[index].gender
+			this.patients[index].temp.email = this.patients[index].email
+			this.patients[index].temp.insurance = this.patients[index].insurance
+			this.patients[index].temp.date_of_birth = this.patients[index].date_of_birth
+		},
+		confirmEdit(index) {
+			this.patients[index].editing = false
+			this.patients[index].temp = {}
+		}
+	},
+	template:
+	`
+	<div style="background-color:#ccc; padding: 5rem; margin: 0 5rem; min-height: 40rem">
+		<b-overlay :show="showOverlay" rounded="sm">
+			<h3>Patients</h3>
+			<div style="background-color: #fff; padding: 1rem;">
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">SSN</th>
+							<th scope="col">Name</th>
+							<th scope="col">Address</th>
+							<th scope="col">Gender</th>
+							<th scope="col">Email</th>
+							<th scope="col">Insurance</th>
+							<th scope="col">Date of Birth</th>
+							<th scope="col"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="(patient, index) in patients">
+							<td v-if="!patient.editing">{{patient.ssn}}</td>
+							<td v-else>
+								<b-input v-model="patient.temp.ssn"></b-input>
+							</td>
+
+							<td v-if="!patient.editing">{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}</td>
+							<td v-else>
+								<b-input v-model="patient.temp.first_name"></b-input>
+								<b-input v-model="patient.temp.middle_name"></b-input>
+								<b-input v-model="patient.temp.last_name"></b-input>
+							</td>
+
+							<td v-if="!patient.editing">{{patient.house_number}} {{patient.street_name}}, {{patient.city}}, {{patient.province}}</td>
+							<td v-else>
+								<b-input v-model="patient.temp.house_number" type="number"></b-input>
+								<b-input v-model="patient.temp.street_name"></b-input>
+								<b-input v-model="patient.temp.city"></b-input>
+								<b-form-select
+									v-model="patient.temp.province"
+									:options="provinces"
+									placeholder="province"
+									required
+								></b-form-select>
+							</td>
+
+							<td v-if="!patient.editing">{{patient.gender}}</td>
+							<td v-else>
+								<b-input v-model="patient.temp.gender"></b-input>
+							</td>
+
+							<td v-if="!patient.editing">{{patient.email}}</td>
+							<td v-else>
+								<b-input v-model="patient.temp.email"></b-input>
+							</td>
+
+							<td v-if="!patient.editing">{{patient.insurance}}</td>
+							<td v-else>
+								<b-input v-model="patient.temp.insurance"></b-input>
+							</th>
+
+							<td v-if="!patient.editing">{{patient.date_of_birth}}</td>
+							<td v-else>
+								<b-input v-model="patient.temp.date_of_birth"></b-input>
+							</th>
+							
+							<td v-if="!patient.editing">
+								<b-button @click="edit(index)">
+									<b-icon icon="pencil-square"></b-icon>
+								</b-button>
+							</td>
+							<td v-else style="width: 8rem;">
+								<b-button variant="success" @click="confirmEdit(index)">
+									<b-icon icon="check-circle-fill"></b-icon>
+								</b-button>
+								<b-button variant="danger" @click="patient.editing = false">
+									<b-icon icon="x-circle-fill"></b-icon>
+								</b-button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<b-button variant="primary" @click="showOverlay = !showOverlay">Add New Patient</b-button>
+			</div>
+
+			<template #overlay>
+				<patient-form @close="showOverlay = !showOverlay"></patient-form>
+			</template>
+		</b-overlay>	
 	</div>
 	`
 })
@@ -35,7 +193,18 @@ Vue.component("patient-form", {
 			insurance: "",
 			date_of_birth: "",
 		},
-		provinces: [{text: 'Province', value: null}, 'Alberta', 'British Colombia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'],
+		provinces: [{text: 'Provinces ...', value: null}, 
+			'Alberta', 
+			'British Colombia', 
+			'Manitoba', 
+			'New Brunswick', 
+			'Newfoundland and Labrador', 
+			'Nova Scotia', 
+			'Ontario', 
+			'Prince Edward Island', 
+			'Quebec', 
+			'Saskatchewan'
+		],
 	}},
 	created: function() {
 		if (this.patient != null) {
@@ -57,112 +226,122 @@ Vue.component("patient-form", {
 			console.log("TODO submit the form data to the api")
 			console.log(this.form)
 		},
+		close() {
+			this.$emit("close")
+		},
 	},
 	template:
 	`
-	<div style="background-color:#ccc; padding: 5rem; margin: 5rem;">
-		<h3>Patient Form</h3>
-		<br>
-		<b-form @submit="submit">
-			<b-form-group id="input-group-1" label="First Name:" label-for="input-1">
-				<b-form-input
-					id="input-1"
-					v-model="form.firstname"
-					placeholder="first name"
-					required>
-				</b-form-input>
-			</b-from-group>
+	<div style="background-color:#bbb; border:1rem; border-radius:5px;">
+		<div style="text-align:right">
+			<b-button variant="danger" @click="close">
+				X
+			</b-button>
+		</div>
+		<div style="padding: 0rem 2rem 2rem 2rem;">
+			<h3 style="text-align:center;">Patient Form</h3>
 			<br>
-			<b-form-group id="input-group-2" label="Middle Name:" label-for="input-2">
-				<b-form-input
-					id="input-2"
-					v-model="form.middlename"
-					placeholder="middle name">
-				</b-form-input>
-			</b-from-group>
-			<br>
-			<b-form-group id="input-group-3" label="Last Name:" label-for="input-3">
-				<b-form-input
-					id="input-3"
-					v-model="form.lastname"
-					placeholder="last name"
-					required>
-				</b-form-input>
-			</b-from-group>
-			<br>
-			<b-form-group id="input-group-4" label="Address:" label-for="input-4">
-				<b-form-input
-					id="input-4"
-					v-model="form.house_number"
-					type="number"
-					placeholder="house number"
-					required>
-				</b-form-input>
-				<b-form-input
-					id="input-4"
-					v-model="form.street_name"
-					placeholder="street name"
-					required>
-				</b-form-input>
-				<b-form-input
-					id="input-4"
-					v-model="form.city"
-					placeholder="city"
-					required>
-				</b-form-input>
-				<b-form-select
+			<b-form @submit="submit" style="height:40rem; overflow:auto; padding:1rem; width:30rem; background-color:#fff;">
+				<b-form-group id="input-group-1" label="First Name:" label-for="input-1">
+					<b-form-input
+						id="input-1"
+						v-model="form.firstname"
+						placeholder="first name"
+						required>
+					</b-form-input>
+				</b-from-group>
+				<br>
+				<b-form-group id="input-group-2" label="Middle Name:" label-for="input-2">
+					<b-form-input
+						id="input-2"
+						v-model="form.middlename"
+						placeholder="middle name">
+					</b-form-input>
+				</b-from-group>
+				<br>
+				<b-form-group id="input-group-3" label="Last Name:" label-for="input-3">
+					<b-form-input
+						id="input-3"
+						v-model="form.lastname"
+						placeholder="last name"
+						required>
+					</b-form-input>
+				</b-from-group>
+				<br>
+				<b-form-group id="input-group-4" label="Address:" label-for="input-4">
+					<b-form-input
 						id="input-4"
-						v-model="form.province"
-						:options="provinces"
-						placeholder="province"
-						required
-					></b-form-select>
-			</b-from-group>
-			<br>
-			<br>
-			<b-form-group id="input-group-5" label="Email Address:" label-for="input-5">
-				<b-form-input
-					id="input-5"
-					v-model="form.email"
-					placeholder="email"
-					required>
-				</b-form-input>
-			</b-from-group>
-			<br>
-			<b-form-group id="input-group-6" label="Temporary Password:" label-for="input-6">
-				<b-form-input
-					id="input-6"
-					v-model="form.password"
-					type="password"
-					placeholder="temporary password"
-					required>
-				</b-form-input>
-			</b-from-group>
-			<br>
-			<b-form-group id="input-group-7" label="Date of Birth:" label-for="input-7">
-				<b-form-input
-					id="input-7"
-					v-model="form.date_of_birth"
-					placeholder="YYYY-MM-DD"
-					required>
-				</b-form-input>
-				<b-form-invalid-feedback :state="dateValidation">
-					Please input the date with the following format YYYY-MM-DD
-				</b-form-invalid-feedback>
-			</b-from-group>
-			<br>
-			<b-form-group id="input-group-8" label="Insurance Number:" label-for="input-8">
-				<b-form-input
-					id="input-8"
-					v-model="form.insurance"
-					placeholder="Insurance number"
-					required>
-				</b-form-input>
-			</b-from-group>
-			<br>
-			<b-button variant="primary" type="submit">Submit</b-button>
-			<b-button variant="danger" type="reset">Reset</b-button>
-		</b-form>
+						v-model="form.house_number"
+						type="number"
+						placeholder="house number"
+						required>
+					</b-form-input>
+					<b-form-input
+						id="input-4"
+						v-model="form.street_name"
+						placeholder="street name"
+						required>
+					</b-form-input>
+					<b-form-input
+						id="input-4"
+						v-model="form.city"
+						placeholder="city"
+						required>
+					</b-form-input>
+					<b-form-select
+							id="input-4"
+							v-model="form.province"
+							:options="provinces"
+							placeholder="province"
+							required
+						></b-form-select>
+				</b-from-group>
+				<br>
+				<br>
+				<b-form-group id="input-group-5" label="Email Address:" label-for="input-5">
+					<b-form-input
+						id="input-5"
+						v-model="form.email"
+						placeholder="email"
+						required>
+					</b-form-input>
+				</b-from-group>
+				<br>
+				<b-form-group id="input-group-6" label="Temporary Password:" label-for="input-6">
+					<b-form-input
+						id="input-6"
+						v-model="form.password"
+						type="password"
+						placeholder="temporary password"
+						required>
+					</b-form-input>
+				</b-from-group>
+				<br>
+				<b-form-group id="input-group-7" label="Date of Birth:" label-for="input-7">
+					<b-form-input
+						id="input-7"
+						v-model="form.date_of_birth"
+						placeholder="YYYY-MM-DD"
+						required>
+					</b-form-input>
+					<b-form-invalid-feedback :state="dateValidation">
+						Please input the date with the following format YYYY-MM-DD
+					</b-form-invalid-feedback>
+				</b-from-group>
+				<br>
+				<b-form-group id="input-group-8" label="Insurance Number:" label-for="input-8">
+					<b-form-input
+						id="input-8"
+						v-model="form.insurance"
+						placeholder="Insurance number"
+						required>
+					</b-form-input>
+				</b-from-group>
+				<br>
+				<b-button variant="primary" type="submit">Submit</b-button>
+				<b-button variant="danger" type="reset">Reset</b-button>
+			</b-form>
+		</div>
 	</div>
 	`
 })
@@ -172,11 +351,7 @@ Vue.component("manage-appointment", {
 		date: "", // string of the follwing format YYYY-MM-DD
 		branch: null,
 		branches: [],
-		dentist: {
-					ssn: "1",
-					first_name: "John",
-					last_name: "Doe",
-				},
+		dentist: null,
 		dentists: [{text: "Select a dentist", value: null}],
 		appointments: [],
 		showOverlay: false,
@@ -238,7 +413,7 @@ Vue.component("manage-appointment", {
 	},
 	template:
 	`
-	<div style="background-color:#ccc; padding: 5rem; margin: 5rem; min-height: 40rem">
+	<div style="background-color:#ccc; padding: 5rem; margin: 0 5rem; min-height: 40rem">
 		<b-overlay :show="showOverlay" rounded="sm">
 			<h3>Appointments</h3>
 			<b-form-select v-model="branch" :options="branches"></b-form-select>

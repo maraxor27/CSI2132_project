@@ -46,8 +46,8 @@ def logout():
 	return 'ok'
 
 class User:
-	def __init__(self, SSN, email, password, employee_type, patient):
-		self.SSN = SSN
+	def __init__(self, ssn, email, password, employee_type, patient):
+		self.ssn = ssn
 		self.email = email
 		self.password = password
 		self.employee_type = employee_type
@@ -63,7 +63,7 @@ class User:
 		return False
 
 	def get_id(self):
-		return self.SSN
+		return self.ssn
 
 
 	

@@ -25,11 +25,11 @@ def create_flask_app():
 	app.secret_key = os.urandom(24)
 
 	@loginManager.user_loader
-	def load_user(SSN):
+	def load_user(ssn):
 		query = f"""
 SELECT person.ssn, person.email, person.password, employee.employee_type, patient.ssn
 FROM person LEFT JOIN employee ON person.ssn=employee.ssn LEFT JOIN patient ON person.ssn=patient.ssn
-WHERE person.ssn='{SSN}';
+WHERE person.ssn='{ssn}';
 """
 		result = db.execute(query)
 		if len(result) == 1:
