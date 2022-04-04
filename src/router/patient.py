@@ -16,7 +16,7 @@ patientFormatParser = patientNameSpace.model('Patient', {
 		"email": fields.String(required=True),
 		"password": fields.String(required=True),
 		"insurance":fields.String(required=True),
-		"date_of_birth": fields.String(required=True, description="Must follow format 'DD/MM/YYYY"), 
+		"date_of_birth": fields.String(required=True, description="Must follow format 'YYYY-MM-DD"), 
 		"age": fields.Integer(required=True),
 		"guardianSSN": fields.Integer(required=True)
 	})
@@ -37,7 +37,7 @@ class Patients(Resource):
 		return
 
 @patientNameSpace.route("/<int:ssn>")
-@patientNameSpace.doc(params={"ssn":"ssn",}, description="ssn of a patient")
+@patientNameSpace.doc(params={"ssn":"ssn"}, description="ssn of a patient")
 class PatientsID(Resource):
 	@patientNameSpace.doc(description="Returns patient information")
 	def get(self):
