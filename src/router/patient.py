@@ -1,7 +1,11 @@
 from flask import Blueprint, request, abort
 from flask_restx import Namespace, Resource, fields
+from ..database import *
 
 patientNameSpace = Namespace("patient", path="/patient")
+
+db = Database(host="postgres", database="main", user="user", password="password")
+
 
 patientFormatParser = patientNameSpace.model('Patient', {
 		"SSN": fields.Integer(required=True),
