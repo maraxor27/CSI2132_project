@@ -24,6 +24,11 @@ class Database:
 			raise Exception("Database no longuer conected")
 		self.conn.commit()
 
+	def rollback(self):
+		if not self.conn:
+			raise Exception("Database no longuer conected")
+		self.conn.rollback()
+
 	def close(self):
 		if not self.conn:
 			raise Exception("Database no longuer conected")

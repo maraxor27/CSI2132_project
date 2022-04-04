@@ -28,11 +28,13 @@ SELECT person.ssn, person.email, person.password, employee.employee_type, patien
 FROM person LEFT JOIN employee ON person.ssn=employee.ssn LEFT JOIN patient ON person.ssn=patient.ssn
 WHERE person.email='{request.json.get('email')}' AND person.password='{request.json.get('password')}';
 """
-
-	result = db.execute(query)
 	
+	result = db.execute(query)
+	print(result, flush=True)
 	if len(result) != 1:
 		abort(400, "Invalide email password") 
+
+	print(result, flush=True)
 	
 	user = User(*(result[0])) 
 	login_user(user)
