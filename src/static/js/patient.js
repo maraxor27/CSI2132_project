@@ -58,9 +58,29 @@ Vue.component("patient", {
 			},
 		],
 	}},
+	created: function() {
+		// axios({
+		// 	method: 'get',
+		// 	url: '/api/v2/patient',
+		// 	data: {
+		// 		'email': email,
+		// 		'password': password
+		// 	}
+		// }).then((response) => {
+		// 	this.login_success(response)
+		// }, (error) => {
+		// 	console.log(error)
+		// 	this.error_message = "Invalid email password combination"
+		// })
+	},
 	methods: {
 
 	},
+	computed: {
+		future_appointment: function() {
+
+		}
+	}
 	template:
 	`
 		<div>

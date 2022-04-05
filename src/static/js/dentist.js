@@ -14,11 +14,27 @@ Vue.component("dentist", {
 	},
 	watch: {
 		date: function(old, newDate) {
-			this.getAppointments()
+			this.getAppointments(this.date)
 		},
+		user: function(old, newUser) {
+			this.getAppointments(this.date)
+		}
 	},
 	methods: {
-		getAppointments() {
+		getAppointments(newDate) {
+			if (this.user != null) {
+				console.log('/api/v2/dentist/'+this.user.ssn+"/appointment/"+newDate)
+				axios({
+					method: 'get',
+					url: '/api/v2/dentist/'+this.user.ssn+"/appointment/"+newDate,
+				}).then((response) => {
+					console.log(response)
+					this.appointments = response.data
+				}, (error) => {
+					console.log(error)
+				})
+			}
+			/*
 			// use this.user.SSN & this.date to query
 			this.appointments = [
 				{
@@ -54,6 +70,8 @@ Vue.component("dentist", {
 					status: "appointment_status 2",
 				},
 			]
+			*/
+
 		},
 		selectApt(index) {
 			// this should call api to get (appointment + procedure + medical history) 
@@ -123,7 +141,7 @@ Vue.component("dentist", {
 						<tr class="clickable" v-for="(appointment, index) in appointments" @click="selectApt(index)">
 							<td>{{appointment.start_time}}</td>
 							<td>{{appointment.end_time}}</td>
-							<td>{{appointment.patient.ssn}}: {{appointment.patient.first_name}} {{appointment.patient.last_name}}</td>
+							<td>{{appointment.patient.ssn}}: {{appointment.patient.first_name}} {{appointment.patient.middle_name}} {{appointment.patient.last_name}}</td>
 							<td>{{appointment.type}}</td>
 							<td>{{appointment.status}}</td>
 						</tr>
@@ -152,6 +170,7 @@ Vue.component("dentist", {
 									<td scope="col">{{procedure.tooth_involved}}</td>
 									<td scope="col">{{procedure.medication}}</td>
 									<td scope="col">{{procedure.description}}</td>
+									<td scope="col">{{procedure.fee}}</td>
 								</tr>
 								<tr>
 									<td scope="col">

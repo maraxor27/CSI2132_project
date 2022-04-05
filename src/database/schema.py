@@ -118,7 +118,6 @@ appointment = """CREATE TABLE appointment(
 	start_time TIME NOT NULL,
 	end_time TIME NOT NULL,
 	status VARCHAR(10) NOT NULL,
-	invoice_id INTEGER NOT NULL, 
 	room_id INTEGER NOT NULL,
 	PRIMARY KEY (appointment_id),
 	FOREIGN KEY (patientSSN) REFERENCES patient(SSN) 
@@ -164,12 +163,15 @@ treatment = """CREATE TABLE treatment (
 	medication VARCHAR(100) NOT NULL,
 	appointment_id INTEGER NOT NULL,
 	fee_id INTEGER NOT NULL,
+	record INTEGER NOT NULL,
 	FOREIGN KEY (appointment_id) REFERENCES appointment(appointment_id) 
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
 	FOREIGN KEY (fee_id) REFERENCES fee(fee_id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
+	FOREIGN KEY (record) REFERENCES patient_record(patientSSN)
+		ON UPDATE CASCADE
 );"""
 
 # We assume the amount can't be higher than 9 999.99

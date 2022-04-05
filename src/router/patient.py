@@ -147,16 +147,16 @@ class Patients(Resource):
 @patientNameSpace.doc(params={"ssn":"ssn"}, description="ssn of a patient")
 class PatientsID(Resource):
 	@patientNameSpace.doc(description="Returns patient information")
-	def get(self):
+	def get(self, ssn):
 		# TODO : create function to get specific patient based on ssn
 		return
 	
 	@patientNameSpace.doc(description="Delete patient with ssn")
-	def delete(self):
+	def delete(self, ssn):
 		# TODO: add function to delete patient based on ssn 
 		return
 	
 	@patientNameSpace.expect(patientFormatParser, validate=True)
-	def put(self):
+	def put(self, ssn):
 		# TODO: add function to edit patient info based on ssn
 		return

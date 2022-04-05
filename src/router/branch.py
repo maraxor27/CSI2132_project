@@ -24,7 +24,7 @@ class Branches(Resource):
 				dict["city"] = r[1]
 				list.append(dict)
 				dict = {}
-			return json.dumps(list)
+			return list
 		else:
 			return "No branches in the database"
 
@@ -47,7 +47,7 @@ class BranchID(Resource):
 				list.append(dict)
 				dict = {}
 			print(list, flush=True)
-			return json.dumps(list)
+			return list
 		else:
 			return "No branches in the database"
 
