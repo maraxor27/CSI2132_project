@@ -1,6 +1,7 @@
 from flask import Blueprint, request, abort
 from flask_restx import Namespace, Resource, fields
 import json
+from .appointment import appointmentFormatParser, Appointment
 from ..database import *
 
 patientNameSpace = Namespace("patient", path="/patient")
@@ -35,7 +36,6 @@ class Patients(Resource):
 	def get(self):
 		# Query to select all patients from db
 		dbQuery = db.execute("""Select * from person natural join patient""")
-		print(dbQuery, flush=True)
 		temp_dict = {}
 		temp_list = []
 		for elem in dbQuery:
@@ -56,7 +56,6 @@ class Patients(Resource):
 			temp_dict["guardianSSN"] = elem[14]
 			temp_list.append(temp_dict)
 			temp_dict = {}
-		print(temp_list, flush=True)
 		return temp_list
 	
 	@patientNameSpace.expect(patientFormatParser, validate=True)
@@ -102,21 +101,6 @@ class Patients(Resource):
 			db.commit()
 		else :
 			# sequence of instructions to add patient			
-			temp_string = (f"""insert into person values
-			(
-				{data_patient.get("SSN")},
-				'{data_patient.get("first_name")}',
-				{middle_name},
-				'{data_patient.get("last_name")}',
-				{data_patient.get("house_number")},
-				'{data_patient.get("street_name")}',
-				'{data_patient.get("city")}',
-				'{data_patient.get("province")}',
-				'{data_patient.get("gender")}',
-				'{data_patient.get("email")}',
-				'{data_patient.get("password")}'
-			);""")
-
 			db.execute(f"""insert into person values
 			(
 				{data_patient.get("SSN")},
@@ -148,15 +132,45 @@ class Patients(Resource):
 class PatientsID(Resource):
 	@patientNameSpace.doc(description="Returns patient information")
 	def get(self, ssn):
-		# TODO : create function to get specific patient based on ssn
-		return
-	
-	@patientNameSpace.doc(description="Delete patient with ssn")
-	def delete(self, ssn):
-		# TODO: add function to delete patient based on ssn 
-		return
-	
-	@patientNameSpace.expect(patientFormatParser, validate=True)
-	def put(self, ssn):
-		# TODO: add function to edit patient info based on ssn
-		return
+		# get data on specific patient
+		dbQuery = db.execute(f"""Select * from person natural join patient where ssn = {ssn}""")
+		#define necessary variables to collect data
+		temp_dict = {}
+
+		# db contains information on patient
+		if (len(dbQuery) != 0 ):
+			#define elem
+			elem = dbQuery[0]
+			#sequence of instructions to return patient information
+			temp_dict["SSN"] = elem[0]
+			temp_dict["first_name"] = elem[1]
+			temp_dict["middle_name"] = elem[2]
+			temp_dict["last_name"] = elem[3]
+			temp_dict["house_number"] = elem[4]
+			temp_dict["street_name"] = elem[5]
+			temp_dict["city"] = elem[6]
+			temp_dict["province"] = elem[7]
+			temp_dict["gender"] = elem[8]
+			temp_dict["email"] = elem[9]
+			temp_dict["password"] = elem[10]
+			temp_dict["insurance"] = elem[11]
+			temp_dict["date_of_birth"] = elem[12].isoformat()
+			temp_dict["age"] = elem[13]
+			temp_dict["guardianSSN"] = elem[14]
+			
+		return temp_dict
+
+@patientNameSpace.route("/<int:ssn>/appointment")
+@patientNameSpace.doc(params={"ssn":"ssn"}, description="ssn of a patient")
+class PatientsID(Resource):
+	@patientNameSpace.doc(description="Returns appointments linked to patient")
+	def get(self, ssn):
+		# get data on specific patient
+		dbQuery = db.execute(f"""Select * from appointment where patientSSN = {ssn}""")
+		#define necessary variables to collect data
+		temp_dict = {}
+		temp_list = []
+
+		temp_list = [Appointment(*args).__dict__ for args in dbQuery]
+
+		return temp_list
