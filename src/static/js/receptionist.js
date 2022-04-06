@@ -62,10 +62,13 @@ Vue.component("manage-patient", {
 			'Saskatchewan'
 		],
 	}},
+	created: function() {
+		this.getPatients()
+	},
 	methods: {
 		edit(index) {
 			this.patients[index].editing = true
-			this.patients[index].temp.ssn = this.patients[index].ssn
+			this.patients[index].temp.SSN = this.patients[index].SSN
 			this.patients[index].temp.first_name = this.patients[index].first_name
 			this.patients[index].temp.middle_name = this.patients[index].middle_name
 			this.patients[index].temp.last_name = this.patients[index].last_name
@@ -79,8 +82,41 @@ Vue.component("manage-patient", {
 			this.patients[index].temp.date_of_birth = this.patients[index].date_of_birth
 		},
 		confirmEdit(index) {
+			this.patients[index].temp.password = this.patients[index].password
+			this.patients[index].temp.age = this.patients[index].age
+			if (this.patients[index].temp.middle_name == null) {
+				delete this.patients[index].temp.middle_name
+			}
+			
+			axios({
+				method: "POST",
+				url: "/api/v2/patient/",
+				data: this.patients[index].temp
+			}).then((response) => {
+				this.patients[index] = this.patients[index].temp
+				this.patients[index].editing = false
+				this.patients[index].temp = {}
+				this.getPatients()
+			}, (error) => {
+				console.log(error)
+			})
 			this.patients[index].editing = false
 			this.patients[index].temp = {}
+		},
+		getPatients() {
+			axios({
+				method: "GET",
+				url: "/api/v2/patient/"
+			}).then((response) => {
+				console.log(response.data)
+				for (i = 0; i < response.data.length; i++) {
+					response.data[i].editing = false
+					response.data[i].temp = {}
+				}
+				this.patients = response.data
+			}, (error) => {
+				console.log(error)
+			})
 		}
 	},
 	template:
@@ -104,9 +140,9 @@ Vue.component("manage-patient", {
 					</thead>
 					<tbody>
 						<tr v-for="(patient, index) in patients">
-							<td v-if="!patient.editing">{{patient.ssn}}</td>
+							<td v-if="!patient.editing">{{patient.SSN}}</td>
 							<td v-else>
-								<b-input v-model="patient.temp.ssn"></b-input>
+								<b-input v-model="patient.temp.SSN"></b-input>
 							</td>
 
 							<td v-if="!patient.editing">{{patient.first_name}} {{patient.middle_name}} {{patient.last_name}}</td>
@@ -224,7 +260,7 @@ Vue.component("patient-form", {
 				this.form.middlename = null;
 			event.preventDefault()
 			console.log("TODO submit the form data to the api")
-			console.log(this.form)
+			// console.log(this.form)
 		},
 		close() {
 			this.$emit("close")
@@ -359,57 +395,74 @@ Vue.component("manage-appointment", {
 	created: function() {
 		today = new Date()
 		this.date = "" + today.getFullYear() + "-" + ( ((today.getMonth()+1)>10)?((today.getMonth()+1)):("0"+(today.getMonth()+1)) ) + "-" + ( (today.getDate()>10)?(today.getDate()):("0"+today.getDate()) )		
-		this.branches = [{text: "Select a branch", value: null}, 'branch 1', 'branch 2', 'branch 3']
+		this.getBranch()
+		//this.branches = [{text: "Select a branch", value: null}, 'branch 1', 'branch 2', 'branch 3']
 	},
 	methods: {
+		getBranch() {
+			axios({
+				method: "GET",
+				url: "/api/v2/branch/"
+			}).then((response) => {
+				for (i = 0; i < response.data.length; i++) {
+					response.data[i].text = response.data[i].city
+					response.data[i].value = response.data[i].branch_id
+				}
+				this.branches = [{text: "Select a branch", value: null}].concat(response.data)
+			}, (error) => {
+				console.log(error)
+			})
+		},
 		getDentists(branch) {
-			dentists = [
-				{
-					ssn: "1",
-					first_name: "John",
-					last_name: "Doe",
-				},
-			]
-			this.dentist = null
-			buffer = [{text: "Select a dentist", value: null}]
-			for (i = 0; i < dentists.length; i++) {
-				buffer.push(
-					{
-						text: ""+dentists[i].ssn+": "+dentists[i].first_name+" "+dentists[i].last_name,
-						value: dentists[i]
-					}
-				)
+			if (branch == null) {
+				this.appointments = []
+				return
 			}
-			this.dentists = buffer
+			axios({
+				method: "GET",
+				url: "/api/v2/branch/"+branch+"/dentist"
+			}).then((response) => {
+				var dentists = response.data
+				buffer = [{text: "Select a dentist", value: null}]
+				for (i = 0; i < dentists.length; i++) {
+					buffer.push(
+						{
+							text: ""+dentists[i].ssn+": "+dentists[i].first_name+" "+dentists[i].last_name,
+							value: dentists[i]
+						}
+					)
+				}
+				this.dentists = buffer
+			}, (error) => {
+				console.log(error)
+			})
+			
 		},
 		getAppointments(date, branch, dentist) {
-			this.appointments = [
-				{
-					start_time: "start_time",
-					end_time: "end_time",
-					dentist: {
-						ssn: "1",
-						first_name: "John",
-						last_name: "Doe",
-					},
-					patient: {
-						ssn: "2",
-						first_name: "Jane",
-						last_name: "Doe",
-					},
-					type: "appointment_type",
-					status: "appointment_status",
-				},
-			]
+			if (dentist == null || branch == null) {
+				this.appointments = []
+				return
+			}
+			axios({
+				method: 'get',
+				url: '/api/v2/dentist/'+dentist.ssn+"/appointment/"+date,
+			}).then((response) => {
+				this.appointments = response.data
+			}, (error) => {
+				console.log(error)
+			})
 		}
 	},
 	watch: {
-		branch: function(oldBranch, newBranch) {
+		branch: function(newBranch, oldBranch) {
 			this.getDentists(newBranch)
 		},
-		dentist: function(oldDentist, newDentist) {
+		dentist: function(newDentist, oldDentist) {
 			this.getAppointments(this.date, this.branch, newDentist)
 		},
+		date: function(newDate, oldDate) {
+			this.getAppointments(newDate, this.branch, this.dentist)
+		}
 	},
 	template:
 	`
@@ -419,7 +472,7 @@ Vue.component("manage-appointment", {
 			<b-form-select v-model="branch" :options="branches"></b-form-select>
 			<b-form-select v-model="dentist" :options="dentists" :disabled="branch==null"></b-form-select>
 			<b-form-datepicker v-model="date" class="mb-2" :disabled="dentist==null"></b-form-datepicker>
-			<div style="background-color: #fff; padding: 1rem;" v-if="dentist!=null">
+			<div style="background-color: #fff; padding: 1rem;" v-if="dentist!=null && branch!=null">
 				<h5>Schedule of the day</h5>
 				<table class="table">
 					<thead>
@@ -436,7 +489,7 @@ Vue.component("manage-appointment", {
 						<tr v-for="appointment in appointments">
 							<td>{{appointment.start_time}}</td>
 							<td>{{appointment.end_time}}</td>
-							<td>{{appointment.dentist.ssn}}: {{appointment.dentist.first_name}} {{appointment.dentist.last_name}}</td>
+							<td>{{appointment.employee.ssn}}: {{appointment.employee.first_name}} {{appointment.employee.last_name}}</td>
 							<td>{{appointment.patient.ssn}}: {{appointment.patient.first_name}} {{appointment.patient.last_name}}</td>
 							<td>{{appointment.type}}</td>
 							<td>{{appointment.status}}</td>

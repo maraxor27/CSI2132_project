@@ -33,7 +33,7 @@ class Branches(Resource):
 class BranchID(Resource):
 	@branchNameSpace.doc(description="Returns all the dentist in the databases that belong to the given branch_id")
 	def get(self, branch_id):
-		query = "SELECT * FROM employee WHERE employee.branch_id = " + str(branch_id) + " and employee.employee_type='dentist'"
+		query = "SELECT person.ssn, employee.employee_type, employee.salary, employee.branch_id, employee.is_manager, person.first_name, person.middle_name, person.last_name  FROM person join employee on person.ssn=employee.ssn WHERE employee.branch_id = " + str(branch_id) + " and employee.employee_type='dentist'"
 		result = db.execute(query)
 		dict = {}
 		list = []
@@ -44,6 +44,9 @@ class BranchID(Resource):
 				dict["salary"] = float(r[2])
 				dict["branch_id"] = r[3]
 				dict["is_manager"] = r[4]
+				dict["first_name"] = r[5]
+				dict["middle_name"] = r[6]
+				dict["last_name"] = r[7]
 				list.append(dict)
 				dict = {}
 			print(list, flush=True)

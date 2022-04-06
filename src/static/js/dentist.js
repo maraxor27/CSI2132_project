@@ -5,6 +5,7 @@ Vue.component("dentist", {
 			appointments: [],
 			apt: null,
 			procedures: null,
+			med_history: null,
 			temp_procedure: null,
 			new_procedure_error: "",
 	}},
@@ -28,50 +29,11 @@ Vue.component("dentist", {
 					method: 'get',
 					url: '/api/v2/dentist/'+this.user.ssn+"/appointment/"+newDate,
 				}).then((response) => {
-					console.log(response)
 					this.appointments = response.data
 				}, (error) => {
 					console.log(error)
 				})
 			}
-			/*
-			// use this.user.SSN & this.date to query
-			this.appointments = [
-				{
-					start_time: "start_time",
-					end_time: "end_time",
-					dentist: {
-						ssn: "1",
-						first_name: "John",
-						last_name: "Doe",
-					},
-					patient: {
-						ssn: "2",
-						first_name: "Jane",
-						last_name: "Doe",
-					},
-					type: "appointment_type",
-					status: "appointment_status",
-				},
-				{
-					start_time: "start_time 2",
-					end_time: "end_time 2",
-					dentist: {
-						ssn: "2",
-						first_name: "Jane",
-						last_name: "Doe",
-					},
-					patient: {
-						ssn: "1",
-						first_name: "John",
-						last_name: "Doe",
-					},
-					type: "appointment_type 2",
-					status: "appointment_status 2",
-				},
-			]
-			*/
-
 		},
 		selectApt(index) {
 			// this should call api to get (appointment + procedure + medical history) 
@@ -88,6 +50,28 @@ Vue.component("dentist", {
 				medication: '',
 				description: '',
 			}
+			this.getProcedure(this.apt.appointment_id)
+			this.getPreviousTreatment(this.apt.patient.ssn)
+		},
+		getProcedure(id) {
+			axios({
+				method: "GET",
+				url: "/api/v2/appointment/"+id+"/procedure",
+			}).then((response) => {
+				this.procedures = response.data
+			}, (error) => {
+				console.log(error)
+			})
+		},
+		getPreviousTreatment(ssn) {
+			axios({
+				method: "GET",
+				url: "/api/v2/patient"+ssn+"/treatment"
+			}).then((reponse) => {
+				this.med_history = response.data
+			}, (error) => {
+				console.log(error)
+			})
 		},
 		addProcedure() {
 			if (this.temp_procedure.code == '') {
@@ -105,16 +89,36 @@ Vue.component("dentist", {
 			} else if (this.temp_procedure.description == '') {
 				this.new_procedure_error = "description is empty"
 				return
+			} else if (this.temp_procedure.fee == '') {
+				this.new_procedure_error = "fee is empty"
+				return
 			}
-			//reset the new procedure row
-			this.new_procedure_error = ''
-			this.temp_procedure = {
-				code: '',
-				type: '',
-				tooth_involved: '',
-				medication: '',
-				description: '',
-			}
+			axios({
+				method: "POST",
+				url: "/api/v2/appointment/"+this.apt.appointment_id+"/procedure",
+				data: {
+					procedure_code: parseInt(this.temp_procedure.code),
+					procedure_type: this.temp_procedure.type,
+					description: this.temp_procedure.description,
+					tooth_involved: this.temp_procedure.tooth_involved,
+					medication: this.temp_procedure.medication,
+					fee: this.temp_procedure.fee
+				}
+			}).then((response) => {
+				//reset the new procedure row
+				this.new_procedure_error = ''
+				this.temp_procedure = {
+					code: '',
+					type: '',
+					tooth_involved: '',
+					medication: '',
+					description: '',
+					fee: '',
+				}
+				this.getProcedure(this.apt.appointment_id)
+			}, (error) => {
+				console.log(error)
+			})
 		},
 	},
 	template: 
@@ -160,13 +164,14 @@ Vue.component("dentist", {
 									<th scope="col">Type</th>
 									<th scope="col">Tooths</th>
 									<th scope="col">Medication</th>
-									<th scope="col">description</th>
+									<th scope="col">Description</th>
+									<th scope="col">Fee</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="procedure in apt.procedures">
-									<td scope="col">{{procedure.code}}</td>
-									<td scope="col">{{procedure.type}}</td>
+								<tr v-for="procedure in procedures">
+									<td scope="col">{{procedure.procedure_code}}</td>
+									<td scope="col">{{procedure.procedure_type}}</td>
 									<td scope="col">{{procedure.tooth_involved}}</td>
 									<td scope="col">{{procedure.medication}}</td>
 									<td scope="col">{{procedure.description}}</td>
@@ -174,7 +179,7 @@ Vue.component("dentist", {
 								</tr>
 								<tr>
 									<td scope="col">
-										<b-input v-model="temp_procedure.code" placeholder="Code"></b-input>
+										<b-input type="number" v-model="temp_procedure.code" placeholder="Code"></b-input>
 									</td>
 									<td scope="col">
 										<b-input v-model="temp_procedure.type" placeholder="Type" ></b-input>
@@ -194,6 +199,7 @@ Vue.component("dentist", {
 											placeholder="description">
 										</b-textarea>
 									</td>
+									<td scope="col"><b-input v-model="temp_procedure.fee" placeholder="0.00" style="width:5.5rem;"></b-input></td>
 								</tr>
 							</tbody>
 						</table>
@@ -220,7 +226,7 @@ Vue.component("dentist", {
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="treatment in apt.patient.treatments">
+								<tr v-for="treatment in med_history">
 								</tr>
 							</tbody>
 						</table>

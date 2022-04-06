@@ -22,7 +22,6 @@ procedureFormatParser = appointmentNameSpace.model('procedure', {
 		"description": fields.String(required=True),
 		"tooth_involved": fields.String(required=True),
 		"medication": fields.String(required=True),
-		"status": fields.String(required=True),
 		"fee": fields.String(required=True, default="0.00")
 	})
 
