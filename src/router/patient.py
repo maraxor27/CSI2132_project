@@ -1,8 +1,10 @@
 from flask import Blueprint, request, abort
 from flask_restx import Namespace, Resource, fields
 import json
-from .appointment import appointmentFormatParser, Appointment
+from .appointment import appointmentFormatParser, Appointment, Treatment
 from ..database import *
+
+from datetime import date
 
 patientNameSpace = Namespace("patient", path="/patient")
 
@@ -162,7 +164,7 @@ class PatientsID(Resource):
 
 @patientNameSpace.route("/<int:ssn>/appointment")
 @patientNameSpace.doc(params={"ssn":"ssn"}, description="ssn of a patient")
-class PatientsID(Resource):
+class PatientsAppointment(Resource):
 	@patientNameSpace.doc(description="Returns appointments linked to patient")
 	def get(self, ssn):
 		# get data on specific patient
@@ -174,3 +176,29 @@ class PatientsID(Resource):
 		temp_list = [Appointment(*args).__dict__ for args in dbQuery]
 
 		return temp_list
+
+@patientNameSpace.route("/<int:ssn>/future_appointment")
+@patientNameSpace.doc(params={"ssn":"ssn"}, description="ssn of a patient")
+class PatientsFutureAppointment(Resource):
+	@patientNameSpace.doc(description="Returns future appointments linked to patient")
+	def get(self, ssn):
+		# get data on specific patient
+		dbQuery = db.execute(f"""Select * from appointment where patientSSN = {ssn} and appointment_date > '{date.today().isoformat()}'""")
+
+		#define necessary variables to collect data
+		appointments = [Appointment(*args).__dict__ for args in dbQuery]
+
+		return appointments
+
+@patientNameSpace.route("/<int:ssn>/medical_history")
+@patientNameSpace.doc(params={"ssn":"ssn"}, description="ssn of a patient")
+class PatientsMedicalHistory(Resource):
+	@patientNameSpace.doc(description="Returns medical history of a patient")
+	def get(self, ssn):
+		# get data on specific patient
+		dbQuery = db.execute(f"""Select * from treatment where record = {ssn}""")
+
+		#define necessary variables to collect data
+		treatments = [Treatment(*args).__dict__ for args in dbQuery]
+
+		return treatments

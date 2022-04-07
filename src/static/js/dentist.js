@@ -24,7 +24,6 @@ Vue.component("dentist", {
 	methods: {
 		getAppointments(newDate) {
 			if (this.user != null) {
-				console.log('/api/v2/dentist/'+this.user.ssn+"/appointment/"+newDate)
 				axios({
 					method: 'get',
 					url: '/api/v2/dentist/'+this.user.ssn+"/appointment/"+newDate,
@@ -66,8 +65,8 @@ Vue.component("dentist", {
 		getPreviousTreatment(ssn) {
 			axios({
 				method: "GET",
-				url: "/api/v2/patient"+ssn+"/treatment"
-			}).then((reponse) => {
+				url: "/api/v2/patient/"+ssn+"/medical_history"
+			}).then((response) => {
 				this.med_history = response.data
 			}, (error) => {
 				console.log(error)

@@ -78,10 +78,16 @@ class Treatment:
 		self.appointment_id = apt_id
 		self.fee = self.getFeeAmount(fee_id)
 		self.record_id = record
+		self.date = self.getTreatmentDate(apt_id)
 
 	def getFeeAmount(self, fee_id):
 		result = db.execute(f"SELECT amount FROM fee WHERE fee_id={fee_id}")[0]
 		return str(result[0])
+
+	def getTreatmentDate(self, apt_id):
+		result	= db.execute(f"SELECT appointment_date FROM appointment WHERE appointment_id={apt_id}")[0]
+		return result[0].isoformat()
+
 
 @appointmentNameSpace.route("/")
 class Appointments(Resource):

@@ -1,8 +1,8 @@
 Vue.component("patient", {
 	props: ["user"],
 	data: function() { return {
-		// default value are for testing without api connection 
-		default_user: {
+		user_info: {},
+		/*{
 			SSN: 1,
 			first_name: "<firstname>",
 			middle_name: null,
@@ -16,8 +16,9 @@ Vue.component("patient", {
 			insurance: "<insurance>",
 			date_of_birth: "<date_of_birth>",
 			age: 42,
-		},
-		past_appointment: [
+		},*/
+		past_appointment: [],
+		/*[
 			{
 				appointment_id: 1,
 				employees: ["<employee name>", "<employee name>", "<employee name>"],
@@ -36,8 +37,9 @@ Vue.component("patient", {
 				end_time: "<end_time>",
 				status: "<status>",
 			},
-		],
-		future_appointment: [
+		],*/
+		future_appointment: [],
+		/*[
 			{
 				appointment_id: 3,
 				employees: ["<employee name>", "<employee name>", "<employee name>"],
@@ -56,31 +58,56 @@ Vue.component("patient", {
 				end_time: "<end_time>",
 				status: "<status>",
 			},
-		],
+		],*/
 	}},
-	created: function() {
-		// axios({
-		// 	method: 'get',
-		// 	url: '/api/v2/patient',
-		// 	data: {
-		// 		'email': email,
-		// 		'password': password
-		// 	}
-		// }).then((response) => {
-		// 	this.login_success(response)
-		// }, (error) => {
-		// 	console.log(error)
-		// 	this.error_message = "Invalid email password combination"
-		// })
+	watch: {
+		user(newUser, oldUser) {
+			this.getUser(newUser.ssn)
+		}
 	},
 	methods: {
+		getUser(ssn) {
+			if (ssn == undefined || ssn == null)
+				return
 
+			axios({
+				method: 'get',
+				url: '/api/v2/patient/'+ssn,
+			}).then((response) => {
+				this.user_info = response.data
+				// console.log("User data:", response.data)
+				this.getFutureAppointments(ssn)
+				this.getMedicalHistory(ssn)
+			}, (error) => {
+				console.log(error)
+			})
+		},
+		getFutureAppointments(ssn) {
+			axios({
+				method: 'get',
+				url: '/api/v2/patient/'+ssn+"/future_appointment",
+			}).then((response) => {
+				this.future_appointment = response.data
+				console.log("future_appointment:", this.future_appointment)
+			}, (error) => {
+				console.log(error)
+			})
+		},
+		getMedicalHistory(ssn) {
+			axios({
+				method: 'get',
+				url: '/api/v2/patient/'+ssn+"/medical_history",
+			}).then((response) => {
+				this.past_appointment = response.data
+				console.log("medical_history:", this.past_appointment)
+			}, (error) => {
+				console.log(error)
+				this.error_message = "Invalid email password combination"
+			})
+		}
 	},
 	computed: {
-		future_appointment: function() {
-
-		}
-	}
+	},
 	template:
 	`
 		<div>
@@ -88,17 +115,19 @@ Vue.component("patient", {
 			<br>
 
 			<div style="margin-bottom:1rem;background-color:#ccc">
-				SSN = {{default_user.SSN}}
+				SSN = {{user_info.SSN}}
 				<br>
-				firstname = {{default_user.first_name}}
+				firstname = {{user_info.first_name}}
 				<br>
-				middlename = {{default_user.middle_name}}
-				<br>
-				lastname = {{default_user.last_name}}
+				<div v-if="user_info.middlename">
+					middlename = {{user_info.middle_name}}
+					<br>
+				</div>
+				lastname = {{user_info.last_name}}
 				<br>
 				...
 				<br>
-				age = {{default_user.age}}
+				age = {{user_info.age}}
 			</div>
 
 			PAST APPOINTMENT
