@@ -111,35 +111,32 @@ Vue.component("patient", {
 	template:
 	`
 		<div>
-			PATIENT INFORMATION
-			<br>
+			<div class="section section-gray">
+				<div class="col-md-5" style="margin: auto; margin-top: 50px;">
+					<div class="card card-patient">
+						<div class="card-body">
+							<h6 class="card-category">Patient Information</h6>
+							<h1 class="card-title">Jonathan Dorlything{{user_info.first_name}}</h1>
+							<ul>
+								<li><b>SSN:</b> {{user_info.SSN}}</li>
+								<li><b>Age</b> {{user_info.age}}</li>
+							</ul>
 
-			<div style="margin-bottom:1rem;background-color:#ccc">
-				SSN = {{user_info.SSN}}
-				<br>
-				firstname = {{user_info.first_name}}
-				<br>
-				<div v-if="user_info.middlename">
-					middlename = {{user_info.middle_name}}
-					<br>
+							<hr />
+
+							<h6 class="card-category">Past Appointment</h6>
+							<br>
+							<appointment v-for="(p_apt, index) in past_appointment" :info="p_apt"></appointment>
+							<br>
+
+							<h6 class="card-category">Future Appointment</h6>
+							<br>
+							<appointment v-for="(f_apt, index) in future_appointment" :info="f_apt"></appointment>
+							<br>
+						</div>
+					</div>
 				</div>
-				lastname = {{user_info.last_name}}
-				<br>
-				...
-				<br>
-				age = {{user_info.age}}
 			</div>
-
-			PAST APPOINTMENT
-			<br>
-
-			<appointment v-for="(p_apt, index) in past_appointment" :info="p_apt"></appointment>
-			<br>
-			
-			FUTURE APPOINTMENT
-			<br>
-			
-			<appointment v-for="(f_apt, index) in future_appointment" :info="f_apt"></appointment>
 		</div>
 	`
 })
