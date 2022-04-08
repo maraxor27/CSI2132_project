@@ -1,0 +1,153 @@
+.ml {
+	margin-left: auto;
+}
+
+.form-label {
+	margin: 0.25rem 0rem;
+}
+
+.clickable:hover {
+	cursor: pointer;
+}
+
+/* Jad */
+body{
+  background-color: #eeeeee;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  color: #333333;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+  border: 0 none;
+  -webkit-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
+    box-shadow 200ms ease;
+  -moz-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
+    box-shadow 200ms ease;
+  -o-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
+    box-shadow 200ms ease;
+  -ms-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
+    box-shadow 200ms ease;
+  transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
+    box-shadow 200ms ease;
+}
+
+.card:not(.card-plain):hover {
+  box-shadow: 0px 12px 19px -7px rgba(0, 0, 0, 0.3);
+  transform: translateY(-10px);
+  -webkit-transform: translateY(-10px);
+  -ms-transform: translateY(-10px);
+  -moz-transform: translateY(-10px);
+}
+
+.card.no-transition:hover,
+.card.page-carousel:hover,
+.card.card-refine:hover,
+.card.card-register:hover {
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  transform: none;
+  -webkit-transform: none;
+  -ms-transform: none;
+  -moz-transform: none;
+}
+
+.card-patient {
+  text-align: center;
+}
+
+.card-patient .card-body {
+  padding: 15px !important;
+}
+
+.card-patient .card-category {
+  margin: 10px 0 10px;
+  color: #333333;
+}
+
+.card-patient .card-icon {
+  padding: 35px 0 5px;
+  transform: translateY(0%);
+  color: #333333;
+}
+
+.card-patient .card-icon.icon-info {
+  color: #51bcda;
+}
+
+.card-patient .card-icon.icon-danger {
+  color: #f5593d;
+}
+
+.card-patient .card-icon.icon-primary {
+  color: #51cbce;
+}
+
+.card-patient .card-icon.icon-success {
+  color: #6bd098;
+}
+
+.card-patient .card-icon.icon-warning {
+  color: #fbc658;
+}
+
+.card-patient .card-title {
+  margin-top: 30px !important;
+}
+
+.card-patient ul {
+  list-style: none;
+  padding: 0;
+  max-width: 240px;
+  margin: 20px auto;
+}
+
+.card-patient ul li {
+  padding: 5px 0;
+  list-style-type: none;
+}
+
+.card-patient ul li b {
+  font-weight: 600;
+  color: #333333;
+}
+
+.card-patient .btn-neutral {
+  color: #66615b;
+}
+
+.card-patient .btn-neutral:hover,
+.card-patient .btn-neutral :focus {
+  color: #403d39;
+}
+
+.card-patient.card-background-image ul li {
+  color: #ffffff;
+  text-align: center;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.card-patient.card-background-image ul li b {
+  color: #ffffff !important;
+}
+
+.card-patient.card-background-image .card-description {
+  color: #ffffff !important;
+}
+
+.card-patient.card-background-image .card-title small {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.card-patient.card-plain .card-category,
+.card-patient.card-plain .card-title {
+  color: #333333;
+}
+
+.card-patient.card-plain ul li b {
+  font-weight: 600;
+  color: #333333;
+}
