@@ -119,7 +119,7 @@ Vue.component("patient", {
 							<h1 class="card-title">{{user_info.first_name}}</h1>
 							<ul>
 								<li><b>SSN:</b> {{user_info.SSN}}</li>
-								<li><b>Age</b> {{user_info.age}}</li>
+								<li><b>Age:</b> {{user_info.age}}</li>
 							</ul>
 
 							<hr />
