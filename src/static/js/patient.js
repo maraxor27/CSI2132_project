@@ -116,7 +116,7 @@ Vue.component("patient", {
 					<div class="card card-patient">
 						<div class="card-body">
 							<h6 class="card-category">Patient Information</h6>
-							<h1 class="card-title">Jonathan Dorlything{{user_info.first_name}}</h1>
+							<h1 class="card-title">{{user_info.first_name}}</h1>
 							<ul>
 								<li><b>SSN:</b> {{user_info.SSN}}</li>
 								<li><b>Age</b> {{user_info.age}}</li>
