@@ -12,6 +12,7 @@ Vue.component("dentist", {
 	created: function() {
 		today = new Date()
 		this.date = "" + today.getFullYear() + "-" + ( ((today.getMonth()+1)>10)?((today.getMonth()+1)):("0"+(today.getMonth()+1)) ) + "-" + ( (today.getDate()>10)?(today.getDate()):("0"+today.getDate()) )		
+		this.getAppointments(this.date)
 	},
 	watch: {
 		date: function(old, newDate) {

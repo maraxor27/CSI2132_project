@@ -2,63 +2,8 @@ Vue.component("patient", {
 	props: ["user"],
 	data: function() { return {
 		user_info: {},
-		/*{
-			SSN: 1,
-			first_name: "<firstname>",
-			middle_name: null,
-			last_name: "<Lastname>",
-			house_number: 1234,
-			street_name: "<street_name>",
-			city: "<city>",
-			province: "<province>",
-			gender: "<M/F>",
-			email: "<email>",
-			insurance: "<insurance>",
-			date_of_birth: "<date_of_birth>",
-			age: 42,
-		},*/
-		past_appointment: [],
-		/*[
-			{
-				appointment_id: 1,
-				employees: ["<employee name>", "<employee name>", "<employee name>"],
-				type: "<type>",
-				appointment_date: "<appointment_date>",
-				start_time: "<start_time>",
-				end_time: "<end_time>",
-				status: "<status>",
-			},
-			{
-				appointment_id: 2,
-				employees: ["<employee name>", "<employee name>", "<employee name>"],
-				type: "<type>",
-				appointment_date: "<appointment_date>",
-				start_time: "<start_time>",
-				end_time: "<end_time>",
-				status: "<status>",
-			},
-		],*/
+		med_history: [],
 		future_appointment: [],
-		/*[
-			{
-				appointment_id: 3,
-				employees: ["<employee name>", "<employee name>", "<employee name>"],
-				type: "<type>",
-				appointment_date: "<appointment_date>",
-				start_time: "<start_time>",
-				end_time: "<end_time>",
-				status: "<status>",
-			},
-			{
-				appointment_id: 4,
-				employees: ["<employee name>", "<employee name>", "<employee name>"],
-				type: "<type>",
-				appointment_date: "<appointment_date>",
-				start_time: "<start_time>",
-				end_time: "<end_time>",
-				status: "<status>",
-			},
-		],*/
 	}},
 	watch: {
 		user(newUser, oldUser) {
@@ -98,8 +43,8 @@ Vue.component("patient", {
 				method: 'get',
 				url: '/api/v2/patient/'+ssn+"/medical_history",
 			}).then((response) => {
-				this.past_appointment = response.data
-				console.log("medical_history:", this.past_appointment)
+				this.med_history = response.data
+				console.log("medical_history:", this.med_history)
 			}, (error) => {
 				console.log(error)
 				this.error_message = "Invalid email password combination"
@@ -123,7 +68,7 @@ Vue.component("patient", {
 
 					<hr/>
 
-					<h6 class="card-category">Past Appointment</h6>
+					<h6 class="card-category">Future Appointment</h6>
 					
 					<div style="margin: 1rem 2rem;">
 						<table class="table">
@@ -137,47 +82,46 @@ Vue.component("patient", {
 							</thead>
 							<tbody>
 								<tr v-for="apt in future_appointment">
-									<td>apt.employee</td>
+									<td>{{apt.employee.first_name}} {{apt.employee.middle_name}} {{apt.employee.last_name}}</td>
+									<td>{{apt.procedure_type}}</td>
+									<td>{{apt.appointment_date}}</td>
+									<td>{{apt.start_time}}</td>
+									<td>{{apt.end_time}}</td>
+									<td>{{apt.status}}</td>
 								</tr>
 							</tbody>
 						</table>
-						<!--<appointment v-for="(p_apt, index) in past_appointment" :info="p_apt"></appointment>-->
 					</div>
 					
 					<hr/>
 
-					<h6 class="card-category">Future Appointment</h6>
-					<br>
-					<table class="table">
-					</table>
-					<!--<appointment v-for="(f_apt, index) in future_appointment" :info="f_apt"></appointment>-->
+					<h6 class="card-category">Medical History</h6>
+					<div style="margin: 1rem 2rem;">
+						<table class="table">
+							<thead>
+								<th scope="col">Date</th>
+								<th scope="col">Type</th>
+								<th scope="col">Comments</th>
+								<th scope="col">Tooths</th>
+								<th scope="col">Symptoms</th>
+								<th scope="col">Medication</th>
+							</thead>
+							<tbody>
+								<tr v-for="treatment in med_history">
+									<td>{{treatment.date}}</td>
+									<td>{{treatment.treatment_type}}</td>
+									<td>{{treatment.comments}}</td>
+									<td>{{treatment.tooth_involved}}</td>
+									<td>{{treatment.symptoms}}</td>
+									<td>{{treatment.medication}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 					<br>
 				</div>
 			</div>
 		</div>
 	</div>
-	`
-})
-
-Vue.component("appointment", {
-	props: ["info"],
-	methods: {},
-	template:
-	`
-		<div style="margin-bottom:1rem;background-color:#ccc">
-			APPOINTMENT INFO
-			<br>
-			appointment_id = {{info.appointment_id}}
-			<br>
-			employees = {{info.employees}}
-			<br>
-			type = {{info.type}}
-			<br>
-			appointment_date = {{info.appointment_date}}
-			<br>
-			start_time = {{info.start_time}}
-			<br>
-			end_time = {{info.end_time}}
-		</div>
 	`
 })

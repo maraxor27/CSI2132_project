@@ -68,7 +68,7 @@ db.execute("INSERT INTO appointment VALUES (0,0,3,'TREATMENT','2022-04-04','13:3
 db.execute("INSERT INTO appointment VALUES (1,1,3,'TREATMENT','2022-04-04','14:30','15:30','COMPLETED',0)")
 db.execute("INSERT INTO appointment VALUES (2,2,3,'PROCEDURE','2022-04-04','15:30','16:30','COMPLETED',0)")
 db.execute("INSERT INTO appointment VALUES (3,2,3,'TREATMENT','2022-02-04','14:30','15:30','COMPLETED',0)")
-db.execute("INSERT INTO appointment VALUES (3,2,3,'TREATMENT','2022-10-15','15:30','16:30','SCHEDULED',0)")
+db.execute("INSERT INTO appointment VALUES (4,2,3,'TREATMENT','2022-10-15','15:30','16:30','SCHEDULED',0)")
 
 db.execute("INSERT INTO patient_record VALUES (0)")
 db.execute("INSERT INTO patient_record VALUES (1)")
