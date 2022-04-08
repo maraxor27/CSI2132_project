@@ -2,7 +2,7 @@ from database import *
 
 db = Database(host="postgres", database="main", user="user", password="password")
 
-table_names_list = ['person', 'guardian', 'patient', 'employee', 'branch', 'room', 'review', 'appointment', 'appointment_procedure', 
+table_names_list = ['person', 'guardian', 'patient', 'employee', 'patient_record', 'branch', 'room', 'review', 'appointment', 'appointment_procedure', 
 	'treatment', 'fee', 'invoice', 'patient_billing', 'insurance_claim' ]
 
 # drop all tables

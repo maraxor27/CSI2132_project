@@ -117,6 +117,10 @@ Vue.component("manage-patient", {
 			}, (error) => {
 				console.log(error)
 			})
+		},
+		onClose() {
+			this.getPatients()
+			this.showOverlay=false
 		}
 	},
 	template:
@@ -205,7 +209,7 @@ Vue.component("manage-patient", {
 			</div>
 
 			<template #overlay>
-				<patient-form @close="showOverlay = !showOverlay"></patient-form>
+				<patient-form @close="onClose()"></patient-form>
 			</template>
 		</b-overlay>	
 	</div>
@@ -216,14 +220,15 @@ Vue.component("patient-form", {
 	props: ["patient"],
 	data: function() {return {
 		form: {
-			firstname: "",
-			middlename: null,
-			lastname: "",
+			SSN: 0,
+			first_name: "",
+			middle_name: null,
+			last_name: "",
 			house_number: null,
 			street_name: "",
 			city: "",
 			province: null,
-			gender: "",
+			gender: "m",
 			email: "",
 			password: "",
 			insurance: "",
@@ -256,15 +261,38 @@ Vue.component("patient-form", {
 	},
 	methods: {
 		submit(event) {
-			if (this.form.middlename == "")
-				this.form.middlename = null;
+			if (this.form.middle_name == "")
+				this.form.middle_name = null;
 			event.preventDefault()
-			console.log("TODO submit the form data to the api")
-			// console.log(this.form)
+			// console.log("TODO submit the form data to the api")
+			this.form.SSN = parseInt(this.form.SSN)
+			this.form.house_number = parseInt(this.form.house_number)
+			this.form.age = this.getAge(this.form.date_of_birth)
+			if (this.form.middle_name == null || this.form.middle_name == '')
+				delete this.form.middle_name
+			axios({
+				method: "POST",
+				url: "/api/v2/patient/",
+				data: this.form
+			}).then((response) => {
+				this.$emit("close")
+			}, (error) => {
+				console.log(error)
+			})
 		},
 		close() {
 			this.$emit("close")
 		},
+		getAge(dateString) {
+			var today = new Date();
+			var birthDate = new Date(dateString);
+			var age = today.getFullYear() - birthDate.getFullYear();
+			var m = today.getMonth() - birthDate.getMonth();
+			if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+				age--;
+			}
+			return age;
+		}
 	},
 	template:
 	`
@@ -278,10 +306,20 @@ Vue.component("patient-form", {
 			<h3 style="text-align:center;">Patient Form</h3>
 			<br>
 			<b-form @submit="submit" style="height:40rem; overflow:auto; padding:1rem; width:30rem; background-color:#fff;">
+				<b-form-group id="input-group-0" label="Social Securty Number:" label-for="input-0">
+					<b-form-input
+						id="input-0"
+						type="number"
+						v-model="form.SSN"
+						placeholder="ssn"
+						required>
+					</b-form-input>
+				</b-from-group>
+				<br>
 				<b-form-group id="input-group-1" label="First Name:" label-for="input-1">
 					<b-form-input
 						id="input-1"
-						v-model="form.firstname"
+						v-model="form.first_name"
 						placeholder="first name"
 						required>
 					</b-form-input>
@@ -290,7 +328,7 @@ Vue.component("patient-form", {
 				<b-form-group id="input-group-2" label="Middle Name:" label-for="input-2">
 					<b-form-input
 						id="input-2"
-						v-model="form.middlename"
+						v-model="form.middle_name"
 						placeholder="middle name">
 					</b-form-input>
 				</b-from-group>
@@ -298,11 +336,22 @@ Vue.component("patient-form", {
 				<b-form-group id="input-group-3" label="Last Name:" label-for="input-3">
 					<b-form-input
 						id="input-3"
-						v-model="form.lastname"
+						v-model="form.last_name"
 						placeholder="last name"
 						required>
 					</b-form-input>
 				</b-from-group>
+				<br>
+				<b-form-group id="input-group-12" label="Last Name:" label-for="input-12">
+					<b-form-select
+							id="input-12"
+							v-model="form.gender"
+							:options="[{text:'Male', value:'m'},{text:'Female', value:'f'},{text:'Other', value:'o'}]"
+							placeholder="province"
+							required
+						></b-form-select>
+				</b-from-group>
+				<br>
 				<br>
 				<b-form-group id="input-group-4" label="Address:" label-for="input-4">
 					<b-form-input
@@ -451,7 +500,7 @@ Vue.component("manage-appointment", {
 			}, (error) => {
 				console.log(error)
 			})
-		}
+		}, 
 	},
 	watch: {
 		branch: function(newBranch, oldBranch) {
@@ -499,7 +548,7 @@ Vue.component("manage-appointment", {
 				<b-button variant="primary" @click="showOverlay = !showOverlay">Add New Appointment</b-button>
 			</div>
 			<template #overlay>
-				<appointment-form :date="date" :dentist="dentist" :branch="branch" @close="showOverlay = !showOverlay"></appointment-form>
+				<appointment-form :date="date" :dentist="dentist" :branch="branch" @close="showOverlay = !showOverlay; getAppointments(date,branch,dentist)"></appointment-form>
 			</template>
 		</b-overlay>	
 	</div>
@@ -516,7 +565,7 @@ Vue.component("appointment-form", {
 			dentistSSN: "",
 			patientSSN: "",
 			type: null,
-			status: "",
+			status: "SCHEDULED",
 			procedures: [],
 			treatment: {
 				type: null,
@@ -526,14 +575,24 @@ Vue.component("appointment-form", {
 				medication: null,
 				fee: null,
 			},
+			room: null,
 		},
 		show_treatment: false,
-		statusList: [{text:"Select a status", value:null}, "Status 1", "Status 2", "..."]
+		statusList: [
+			{text:"Select a status", value:null}, 
+			{text:"Cancelled", value:'CANCELLED'}, 
+			{text:"No show", value:'NO SHOW'}, 
+			{text:"Completed", value:'COMPLETED'}, 
+			{text:"Scheduled", value:'SCHEDULED'}, 
+			{text:"Unscheduled", value:'UNSCHEDULED'}
+		],
+		roomList: [{text:"Select a room ...", value: null}],
 	}},
 	created: function() {
 		this.form.date = this.date
 		console.log("dentist:", this.dentist)
 		this.form.dentistSSN = this.dentist.ssn
+		this.getRooms(this.branch)
 	},
 	watch: {
 		date: function(oldDate, newDate) {
@@ -543,6 +602,43 @@ Vue.component("appointment-form", {
 	methods: {
 		submit(event) {
 			event.preventDefault()
+			axios({
+				method: "POST",
+				url: "/api/v2/appointment/",
+				data: {
+					patientSSN: parseInt(this.form.patientSSN),
+					employeeSSN: parseInt(this.form.dentistSSN),
+					type: this.form.type,
+					appointment_date: this.form.date,
+					start_time: this.form.start_time,
+					end_time: this.form.end_time,
+					status: this.form.status,
+					room_id: parseInt(this.form.room)
+				}
+			}).then((response) => {
+				if (this.form.show_treatment) {
+					axios({
+						method: "POST",
+						url: "/api/v2/appointment/"+response.json.appointment_id+"/treatment",
+						data: {
+							treatment_type: this.form.treatment.type,
+							comments: this.form.treatment.comments,
+							tooth_involved: this.form.treatment.tooth_involved,
+							symptoms: this.form.treatment.symptoms,
+							medication: this.form.treatment.medication,
+							fee: this.form.treatment.fee
+						}
+					}).then((response) => {
+						this.close()
+					}, (error) => {
+						console.log(error)
+					})
+				} else {
+					this.close()
+				}
+			}, (error) => {
+				console.log(error)
+			})
 		},
 		close() {
 			this.$emit("close")
@@ -558,6 +654,26 @@ Vue.component("appointment-form", {
 					fee: null,
 				}
 			)
+		},
+		getRooms(branch_id) {
+			axios({
+				method: "GET",
+				url: "/api/v2/branch/"+branch_id+"/room",
+			}).then((response) => {
+				var roomList = response.data
+				buffer = [{text: "Select a room", value: null}]
+				for (i = 0; i < roomList.length; i++) {
+					buffer.push(
+						{
+							text: roomList[i].room_num,
+							value: roomList[i].room_id
+						}
+					)
+				}
+				this.roomList = buffer
+			}, (error) => {
+				console.log(error)
+			})
 		},
 		removeProcedure(index) {
 			this.form.procedures.splice(index, 1)
@@ -618,12 +734,13 @@ Vue.component("appointment-form", {
 				</b-from-group>
 				<br>
 				<b-form-group id="input-group-6" label="Appointment Type:" label-for="input-6">
-					<b-form-input
-						id="input-6"
+					<b-form-select 
+						style="display:block;"
+						id="input-7"
 						v-model="form.type"
-						placeholder="Type"
-						required>
-					</b-form-input>
+						:options="[{text:'Select a appointment type', value:null}, {text:'Treatment', value:'TREATMENT'}, {text:'Procedure', value:'PROCEDURE'}]"
+						required
+					></b-form-select>
 				</b-from-group>
 				<br>
 				<b-form-group id="input-group-7" label="Appointment Status:" label-for="input-7">
@@ -636,7 +753,17 @@ Vue.component("appointment-form", {
 					></b-form-select>
 				</b-from-group>
 				<br>
-				<b-form-group id="input-group-8" label="Procedures:" label-for="input-8">
+				<b-form-group id="input-group-42" label="Room Number:" label-for="input-42">
+					<b-form-select 
+						style="display:block;"
+						id="input-42"
+						v-model="form.room"
+						:options="roomList"
+						required
+					></b-form-select>
+				</b-from-group>
+				<br>
+				<!--<b-form-group id="input-group-8" label="Procedures:" label-for="input-8">
 					<div style="background-color:#eee;border:1rem;border-radius:1rem;padding:1rem;margin-bottom:1rem;"
 						v-for="(procedure, index) in form.procedures">
 						<div style="display:flex;">
@@ -647,9 +774,6 @@ Vue.component("appointment-form", {
 								</li>
 							</ul>
 						</div>
-						<!-- <div style="display:inline-block;margin-left:auto;width:82%;text-align:right;">
-							<b-button variant="danger" @click="removeProcedure(index)">X</b-button>
-						</div> -->
 						<b-form-input
 							id="input-8"
 							v-model="procedure.code"
@@ -698,7 +822,7 @@ Vue.component("appointment-form", {
 					</div>
 					<b-button variant="primary" @click="addProcedure">Add Procedure</b-button>
 				</b-from-group>
-				<br>
+				<br>-->
 				<b-form-group id="input-group-9">
 					<label class="form-label" style="display:inline-block; margin-top:1.5rem;">Treatment:</label>
 					<b-form-checkbox style="display:inline-block;" v-model="show_treatment"></b-form-checkbox>

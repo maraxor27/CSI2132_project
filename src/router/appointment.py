@@ -31,7 +31,6 @@ treatmentFormatParser = appointmentNameSpace.model('treatment', {
 		"tooth_involved": fields.String(required=True),
 		"symptoms": fields.String(required=True),
 		"medication": fields.String(required=True),
-		"status": fields.String(required=True),
 		"fee": fields.String(required=True , default="0.00")
 	})
 

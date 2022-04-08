@@ -110,34 +110,52 @@ Vue.component("patient", {
 	},
 	template:
 	`
-		<div>
-			<div class="section section-gray">
-				<div class="col-md-5" style="margin: auto; margin-top: 50px;">
-					<div class="card card-patient">
-						<div class="card-body">
-							<h6 class="card-category">Patient Information</h6>
-							<h1 class="card-title">{{user_info.first_name}}</h1>
-							<ul>
-								<li><b>SSN:</b> {{user_info.SSN}}</li>
-								<li><b>Age</b> {{user_info.age}}</li>
-							</ul>
+	<div class="section section-gray">
+		<div class="col-md-5" style="margin: auto; margin-top: 50px;">
+			<div class="card card-patient">
+				<div class="card-body">
+					<h6 class="card-category">Patient Information</h6>
+					<h1 class="card-title">{{user_info.first_name}}</h1>
+					<ul>
+						<li><b>SSN:</b> {{user_info.SSN}}</li>
+						<li><b>Age</b> {{user_info.age}}</li>
+					</ul>
 
-							<hr />
+					<hr/>
 
-							<h6 class="card-category">Past Appointment</h6>
-							<br>
-							<appointment v-for="(p_apt, index) in past_appointment" :info="p_apt"></appointment>
-							<br>
-
-							<h6 class="card-category">Future Appointment</h6>
-							<br>
-							<appointment v-for="(f_apt, index) in future_appointment" :info="f_apt"></appointment>
-							<br>
-						</div>
+					<h6 class="card-category">Past Appointment</h6>
+					
+					<div style="margin: 1rem 2rem;">
+						<table class="table">
+							<thead>
+								<th scope="col">Employee</th>
+								<th scope="col">Type</th>
+								<th scope="col">Date</th>
+								<th scope="col">Start Time</th>
+								<th scope="col">End Time</th>
+								<th scope="col">Status</th>
+							</thead>
+							<tbody>
+								<tr v-for="apt in future_appointment">
+									<td>apt.employee</td>
+								</tr>
+							</tbody>
+						</table>
+						<!--<appointment v-for="(p_apt, index) in past_appointment" :info="p_apt"></appointment>-->
 					</div>
+					
+					<hr/>
+
+					<h6 class="card-category">Future Appointment</h6>
+					<br>
+					<table class="table">
+					</table>
+					<!--<appointment v-for="(f_apt, index) in future_appointment" :info="f_apt"></appointment>-->
+					<br>
 				</div>
 			</div>
 		</div>
+	</div>
 	`
 })
 

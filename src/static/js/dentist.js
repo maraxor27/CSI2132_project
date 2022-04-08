@@ -48,6 +48,7 @@ Vue.component("dentist", {
 				tooth_involved: '',
 				medication: '',
 				description: '',
+				fee: ''
 			}
 			this.getProcedure(this.apt.appointment_id)
 			this.getPreviousTreatment(this.apt.patient.ssn)
@@ -92,6 +93,7 @@ Vue.component("dentist", {
 				this.new_procedure_error = "fee is empty"
 				return
 			}
+			console.log(this.temp_procedure)
 			axios({
 				method: "POST",
 				url: "/api/v2/appointment/"+this.apt.appointment_id+"/procedure",
@@ -151,85 +153,98 @@ Vue.component("dentist", {
 					</tbody>
 				</table>
 			</div><div style="display:inline-block; width:1%; vertical-align:top;">
-			</div><div style="display:inline-block; width:59%; vertical-align:top; border:1px solid #dee2e6; padding:1rem;">
-				<div v-if="apt" >
+			</div><div style="display:inline-block; width:59%; vertical-align:top; border:1px solid #dee2e6; padding:1rem;" v-if="apt != null">
+				<div>
 					<h5 style="margin-bottom:2rem;">{{apt.patient.ssn}}: {{apt.patient.first_name}} {{apt.patient.last_name}}</h5>
-					<div style="width:100%">
-						<h5>Procedures</h5>
-						<table class="table table-bordered">
-							<thead>
-								<tr>
-									<th scope="col">Code</th>
-									<th scope="col">Type</th>
-									<th scope="col">Tooths</th>
-									<th scope="col">Medication</th>
-									<th scope="col">Description</th>
-									<th scope="col">Fee</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr v-for="procedure in procedures">
-									<td scope="col">{{procedure.procedure_code}}</td>
-									<td scope="col">{{procedure.procedure_type}}</td>
-									<td scope="col">{{procedure.tooth_involved}}</td>
-									<td scope="col">{{procedure.medication}}</td>
-									<td scope="col">{{procedure.description}}</td>
-									<td scope="col">{{procedure.fee}}</td>
-								</tr>
-								<tr>
-									<td scope="col">
-										<b-input type="number" v-model="temp_procedure.code" placeholder="Code"></b-input>
-									</td>
-									<td scope="col">
-										<b-input v-model="temp_procedure.type" placeholder="Type" ></b-input>
-									</td>
-									<td scope="col">
-										<b-input v-model="temp_procedure.tooth_involved" placeholder="Tooth Involved" style="min-width:4rem;"></b-input>
-									</td>
-									<td scope="col">
-										<b-textarea style="min-width:10rem;"
-											v-model="temp_procedure.medication" 
-											placeholder="Medication">
-										</b-textarea>
-									</td>
-									<td scope="col">
-										<b-textarea style="min-width:15rem;"
-											v-model="temp_procedure.description" 
-											placeholder="description">
-										</b-textarea>
-									</td>
-									<td scope="col"><b-input v-model="temp_procedure.fee" placeholder="0.00" style="width:5.5rem;"></b-input></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-					<div>
-						<b-button variant="primary" 
-							style="margin: 1rem 0 2rem 0;"
-							@click="addProcedure">
-							Add procedure
-						</b-button>
-						<div style="display:inline-block; vertical-align: super; color: red; margin-left: 2rem;"
-							v-if="new_procedure_error!=''">
-							Can't add this procedure because the {{new_procedure_error}}
+					<div v-if="apt != null && apt.type!='TREATMENT'">
+						<div style="width:100%">
+							<h5>Procedures</h5>
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th scope="col">Code</th>
+										<th scope="col">Type</th>
+										<th scope="col">Tooths</th>
+										<th scope="col">Medication</th>
+										<th scope="col">Description</th>
+										<th scope="col">Fee</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="procedure in procedures">
+										<td scope="col">{{procedure.procedure_code}}</td>
+										<td scope="col">{{procedure.procedure_type}}</td>
+										<td scope="col">{{procedure.tooth_involved}}</td>
+										<td scope="col">{{procedure.medication}}</td>
+										<td scope="col">{{procedure.description}}</td>
+										<td scope="col">{{procedure.fee}}</td>
+									</tr>
+									<tr>
+										<td scope="col">
+											<b-input type="number" v-model="temp_procedure.code" placeholder="Code"></b-input>
+										</td>
+										<td scope="col">
+											<b-input v-model="temp_procedure.type" placeholder="Type" ></b-input>
+										</td>
+										<td scope="col">
+											<b-input v-model="temp_procedure.tooth_involved" placeholder="Tooth Involved" style="min-width:4rem;"></b-input>
+										</td>
+										<td scope="col">
+											<b-textarea style="min-width:10rem;"
+												v-model="temp_procedure.medication" 
+												placeholder="Medication">
+											</b-textarea>
+										</td>
+										<td scope="col">
+											<b-textarea style="min-width:15rem;"
+												v-model="temp_procedure.description" 
+												placeholder="description">
+											</b-textarea>
+										</td>
+										<td scope="col">
+											<b-input v-model="temp_procedure.fee" placeholder="0.00" style="width:5.5rem;"></b-input>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div>
+							<b-button variant="primary" 
+								style="margin: 1rem 0 2rem 0;"
+								@click="addProcedure">
+								Add procedure
+							</b-button>
+							<div style="display:inline-block; vertical-align: super; color: red; margin-left: 2rem;"
+								v-if="new_procedure_error!=''">
+								Can't add this procedure because the {{new_procedure_error}}
+							</div>
 						</div>
 					</div>
-					<div style="width:100%">
-						<h5>Treatments</h5>
-						<table class="table table-bordered">
-							<thead>
-								<tr>
-									<th scope="col">Type</th>
-									<th scope="col">Tooths</th>
-									<th scope="col">Medication</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr v-for="treatment in med_history">
-								</tr>
-							</tbody>
-						</table>
-					</div>
+				</div>
+				<div style="width:100%">
+					<h5>Medical History</h5>
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th scope="col">Date</th>
+								<th scope="col">Type</th>
+								<th scope="col">Tooths</th>
+								<th scope="col">Medication</th>
+								<th scope="col">Comments</th>
+								<th scope="col">Symptoms</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="treat in med_history">
+								<td>{{treat.date}}</td>
+								<td>{{treat.treatment_type}}</td>
+								<td>{{treat.tooth_involved}}</td>
+								<td>{{treat.medication}}</td>
+								<td>{{treat.comments}}</td>
+								<td>{{treat.symptoms}}</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
